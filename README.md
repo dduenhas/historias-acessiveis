@@ -197,10 +197,17 @@ O botão **coruja** (canto superior direito) abre um modal com a fundamentação
 
 ## Deploy
 
-O projeto está hospedado na **Cloudflare Pages** com deploy direto do repositório GitHub.
+O projeto está hospedado na **Cloudflare Pages** com **deploy automático** a cada push na branch `main` do repositório GitHub.
+
+| Destino | URL |
+|---------|-----|
+| Produção | [historias-acessiveis.pages.dev](https://historias-acessiveis.pages.dev) |
+| Repositório | [github.com/dduenhas/historias-acessiveis](https://github.com/dduenhas/historias-acessiveis) |
+
+Fluxo: `git push origin main` → Cloudflare clona o repositório → publica os arquivos estáticos (sem etapa de build).
 
 ```bash
-# Deploy manual (requer Wrangler autenticado)
+# Deploy manual (opcional — requer Wrangler autenticado)
 npx wrangler pages deploy . --project-name=historias-acessiveis --branch=main
 ```
 
