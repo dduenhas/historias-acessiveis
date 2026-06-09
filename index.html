@@ -1,0 +1,3531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histórias Acessíveis — Storytelling para Crianças</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Design system — inspirado em gamificação educacional ===== */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --green: #58cc02;
+      --green-deep: #58a700;
+      --green-light: #89e219;
+      --green-pale: #dbf8c5;
+      --orange: #ff9600;
+      --orange-deep: #cc7a00;
+      --orange-pale: #ffe8c2;
+      --blue: #1cb0f6;
+      --blue-deep: #1899d6;
+      --blue-pale: #d6f0ff;
+      --pink: #ce82ff;
+      --red: #ff4b4b;
+      --yellow: #ffc800;
+      --yellow-pale: #fff4cc;
+      --snow: #ffffff;
+      --eel: #f7f7f7;
+      --swan: #e5e5e5;
+      --ink: #3c3c3c;
+      --wolf: #777777;
+      --hare: #afafaf;
+
+      --bg: var(--eel);
+      --surface: var(--snow);
+      --text: var(--ink);
+      --text-muted: var(--wolf);
+      --accent: var(--green);
+      --accent-hover: var(--green-light);
+      --accent-pressed: var(--green-deep);
+      --border: var(--swan);
+      --focus: var(--blue);
+      --tips-bg: var(--green-pale);
+
+      --radius-sm: 12px;
+      --radius: 16px;
+      --radius-lg: 20px;
+      --radius-pill: 9999px;
+      --spacing: 1.25rem;
+      --shadow-chunky: 0 4px 0;
+      --font-display: "Nunito", "DIN Round Pro", "Helvetica Neue", system-ui, sans-serif;
+      --font-body: "Nunito", "Helvetica Neue", system-ui, sans-serif;
+      --font-story: Georgia, "Times New Roman", Times, serif;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      font-size: 1.0625rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    /* Skip link — primeiro elemento focável, visível ao receber foco */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: var(--spacing);
+      z-index: 100;
+      padding: 0.75rem 1.25rem;
+      background: var(--green);
+      color: #fff;
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--green-deep);
+      border-bottom: 4px solid var(--green-deep);
+      font-family: var(--font-display);
+      font-weight: 800;
+    }
+    .skip-link:focus {
+      top: var(--spacing);
+      outline: 3px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    /* Foco visível em todos os interativos (WCAG 2.4.7) */
+    :focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    /* Texto só para leitores de tela */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    header {
+      background: var(--snow);
+      color: var(--ink);
+      padding: 1.5rem var(--spacing) 1.25rem;
+      text-align: center;
+      border-bottom: 2px solid var(--swan);
+      box-shadow: var(--shadow-chunky) var(--swan);
+    }
+    header h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 4vw, 2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.005em;
+      color: var(--ink);
+    }
+    header h1::after {
+      content: "";
+      display: block;
+      width: 3.5rem;
+      height: 4px;
+      margin: 0.5rem auto 0;
+      background: var(--green);
+      border-radius: var(--radius-pill);
+    }
+    header p {
+      margin: 0.75rem 0 0;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--wolf);
+      max-width: 36rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: var(--spacing);
+    }
+    main.story-mode {
+      max-width: 100%;
+      padding: 0;
+    }
+
+    /* Telas — apenas uma visível por vez */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: var(--spacing);
+      margin-bottom: var(--spacing);
+      border: 2px solid var(--swan);
+      box-shadow: var(--shadow-chunky) #d7d7d7;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+    }
+
+    p { margin: 0 0 1rem; }
+    p:last-child { margin-bottom: 0; }
+
+    strong { font-weight: 800; }
+
+    /* Botões — área mínima de toque 44px, efeito tátil */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    @media (min-width: 480px) {
+      .btn-group { flex-direction: row; flex-wrap: wrap; }
+    }
+
+    button, .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0.875rem 1.5rem;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      border: 2px solid var(--green-deep);
+      border-bottom: 4px solid var(--green-deep);
+      border-radius: var(--radius-sm);
+      background: var(--green);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease, border-bottom-width 0.18s ease;
+    }
+    button:hover, .btn:hover {
+      background: var(--green-light);
+    }
+    button:active, .btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+    button.secondary {
+      background: var(--snow);
+      color: var(--wolf);
+      border-color: var(--swan);
+      border-bottom-color: var(--swan);
+    }
+    button.secondary:hover {
+      color: var(--ink);
+      border-color: var(--hare);
+      border-bottom-color: var(--hare);
+      background: var(--eel);
+    }
+
+    /* Formulário acessível */
+    fieldset {
+      border: 2px solid var(--swan);
+      border-radius: var(--radius-sm);
+      padding: var(--spacing);
+      margin-bottom: var(--spacing);
+      background: var(--eel);
+    }
+    legend {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.9375rem;
+      padding: 0 0.5rem;
+      color: var(--ink);
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group:last-child { margin-bottom: 0; }
+    label, .radio-label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-weight: 700;
+    }
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      padding: 0.5rem 0.65rem;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s ease;
+    }
+    .radio-label:hover {
+      background: var(--green-pale);
+    }
+    .radio-label input {
+      width: 1.25rem;
+      height: 1.25rem;
+      accent-color: var(--green);
+    }
+    select,
+    input[type="range"] {
+      accent-color: var(--green);
+    }
+    select,
+    textarea {
+      width: 100%;
+      min-height: 44px;
+      padding: 0.75rem 1rem;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      border: 2px solid var(--swan);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    textarea {
+      min-height: 12rem;
+      line-height: 1.55;
+      font-weight: 500;
+      resize: vertical;
+    }
+    select:focus-visible,
+    textarea:focus-visible {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(28, 176, 246, 0.2);
+    }
+    fieldset.is-disabled {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+    .custom-text-area .hint {
+      font-size: 0.875rem;
+      color: var(--wolf);
+      margin-top: 0.35rem;
+    }
+
+    /* Painel de dicas de mediação */
+    .tips-panel {
+      background: var(--green-pale);
+      border: 2px solid var(--swan);
+      border-bottom: 4px solid #c5e8a8;
+      padding: var(--spacing);
+      border-radius: var(--radius);
+    }
+    .tips-panel h3 {
+      margin-top: 0;
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .tips-panel p {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--wolf);
+    }
+
+    /* ===== Tela de história — layout com painel do professor ===== */
+    .story-layout {
+      display: flex;
+      min-height: calc(100vh - 6.5rem);
+      position: relative;
+      background: var(--eel);
+    }
+    .story-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: var(--spacing);
+      min-width: 0;
+      height: calc(100vh - 6.5rem);
+      max-height: calc(100vh - 6.5rem);
+      overflow: hidden;
+    }
+    .story-header {
+      text-align: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+      padding: 1rem 1.25rem;
+      background: var(--snow);
+      border: 2px solid var(--swan);
+      border-bottom: 4px solid #d7d7d7;
+      border-radius: var(--radius);
+    }
+    .story-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--ink);
+      margin: 0 0 0.5rem;
+    }
+    .story-instructions {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 800;
+      color: var(--orange-deep);
+      margin: 0;
+      padding: 0.35rem 0.85rem;
+      background: var(--orange-pale);
+      border: 2px solid var(--orange);
+      border-radius: var(--radius-pill);
+    }
+
+    /* Divisão 2/3 história + 1/3 orientações do narrador */
+    .story-split {
+      display: flex;
+      flex: 1 1 auto;
+      gap: 1rem;
+      min-height: 0;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .panel-story {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+    }
+    .panel-guide {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+      padding-left: 0;
+    }
+    .panel-label {
+      display: inline-block;
+      margin: 0 0 0.65rem;
+      padding: 0.3rem 0.75rem;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #fff;
+      background: var(--green);
+      border-radius: var(--radius-pill);
+      flex-shrink: 0;
+    }
+    .panel-guide .panel-label {
+      background: var(--blue);
+    }
+    /* Painéis de texto: altura fixa dentro da tela + rolagem vertical */
+    .story-text-viewport,
+    .guide-text-viewport {
+      flex: 1 1 0;
+      min-height: 0;
+      height: 100%;
+      max-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: var(--surface);
+      border: 2px solid var(--swan);
+      border-bottom: 4px solid #d7d7d7;
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      scroll-behavior: smooth;
+      overscroll-behavior: contain;
+    }
+    .guide-text-viewport {
+      background: var(--blue-pale);
+      border-color: #b8e4f8;
+      border-bottom-color: #9dd4f0;
+    }
+    .story-text-viewport::-webkit-scrollbar,
+    .guide-text-viewport::-webkit-scrollbar {
+      width: 10px;
+    }
+    .story-text-viewport::-webkit-scrollbar-track,
+    .guide-text-viewport::-webkit-scrollbar-track {
+      background: var(--eel);
+      border-radius: var(--radius-pill);
+    }
+    .story-text-viewport::-webkit-scrollbar-thumb,
+    .guide-text-viewport::-webkit-scrollbar-thumb {
+      background: var(--hare);
+      border-radius: var(--radius-pill);
+      border: 2px solid var(--eel);
+    }
+    .story-text-viewport::-webkit-scrollbar-thumb:hover,
+    .guide-text-viewport::-webkit-scrollbar-thumb:hover {
+      background: var(--green);
+    }
+    .story-text,
+    .guide-text {
+      font-family: var(--font-story);
+      font-size: 1.125rem;
+      line-height: 1.85;
+      color: var(--text);
+      margin: 0;
+    }
+    .guide-text {
+      font-size: 1rem;
+    }
+    .story-paragraph {
+      margin: 0 0 1.25rem;
+    }
+    .story-paragraph-clickable {
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.5rem;
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+      transition: background 0.15s ease;
+    }
+    .story-paragraph-clickable:hover {
+      background: var(--yellow-pale);
+    }
+    .story-paragraph-clickable:focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 2px;
+    }
+    .story-paragraph-selected {
+      background: var(--yellow-pale);
+      box-shadow: inset 0 0 0 2px var(--orange);
+    }
+    .story-paragraph.past .word.active {
+      background: transparent;
+    }
+    .guide-message {
+      margin: 0 0 1rem;
+      padding: 0.75rem 0.85rem;
+      background: var(--snow);
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--swan);
+      border-left: 4px solid var(--blue);
+    }
+    .guide-message.guide-message-active {
+      background: #fff;
+      border-left-color: var(--blue-deep);
+      box-shadow: var(--shadow-chunky) #d7d7d7;
+    }
+    @media (max-width: 700px) {
+      .story-main {
+        height: calc(100vh - 5.5rem);
+        max-height: calc(100vh - 5.5rem);
+      }
+      .story-layout {
+        min-height: calc(100vh - 5.5rem);
+      }
+      .story-split {
+        flex-direction: column;
+      }
+      .panel-story,
+      .panel-guide {
+        flex: 1 1 50%;
+        height: 50%;
+        max-height: 50%;
+      }
+    }
+    .guide-status {
+      margin: 0 0 0.75rem;
+      padding: 0.5rem 0.75rem;
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--wolf);
+      background: var(--snow);
+      border: 2px dashed var(--swan);
+      border-radius: var(--radius-sm);
+    }
+    .guide-facilitator {
+      margin: 0 0 1rem;
+      padding: 0.85rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: var(--yellow-pale);
+      border: 2px solid var(--yellow);
+      border-bottom: 4px solid #e6b800;
+      border-radius: var(--radius-sm);
+      color: var(--ink);
+    }
+    .guide-facilitator strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: var(--orange-deep);
+    }
+    .word {
+      padding: 0.1em 0.05em;
+      border-radius: 4px;
+      transition: background 0.08s ease;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+    .story-text .word.active {
+      background: var(--yellow);
+    }
+    .guide-text .word.active {
+      background: #a8d8f0;
+    }
+
+    /* Controles de transporte — professor */
+    .transport-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--snow);
+      border: 2px solid var(--swan);
+      border-bottom: 4px solid #d7d7d7;
+      border-radius: var(--radius);
+      flex: 0 0 auto;
+      flex-shrink: 0;
+    }
+    .transport-bar button {
+      min-height: 40px;
+      min-width: 40px;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.9rem;
+      border-radius: var(--radius-sm);
+    }
+    .transport-bar button:not(.secondary) {
+      background: var(--green);
+      border-color: var(--green-deep);
+      border-bottom-color: var(--green-deep);
+    }
+    .transport-bar button.secondary {
+      font-size: 0.8125rem;
+      padding: 0.4rem 1rem;
+    }
+    .transport-bar .transport-label {
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin-right: 0.25rem;
+      padding: 0.25rem 0.6rem;
+      background: var(--orange-pale);
+      border-radius: var(--radius-pill);
+    }
+    .transport-bar input[type="range"] {
+      width: 88px;
+      vertical-align: middle;
+      height: 8px;
+    }
+
+    /* Painel lateral do professor — recolhível */
+    .teacher-panel-toggle {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 50;
+      writing-mode: vertical-rl;
+      min-height: 128px;
+      width: 40px;
+      padding: 0.85rem 0.5rem;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+      background: var(--orange);
+      color: #fff;
+      border: 2px solid var(--orange-deep);
+      border-right: none;
+      border-bottom: 4px solid var(--orange-deep);
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+    .teacher-panel-toggle:hover {
+      background: #ffaa33;
+    }
+    .teacher-panel-toggle:active {
+      transform: translateY(calc(-50% + 2px));
+      border-bottom-width: 2px;
+    }
+    .teacher-panel-toggle[aria-expanded="true"] {
+      right: 300px;
+    }
+    .teacher-panel {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: 300px;
+      max-width: 90vw;
+      height: 100vh;
+      background: var(--surface);
+      border-left: 2px solid var(--swan);
+      padding: var(--spacing);
+      overflow-y: auto;
+      z-index: 40;
+      box-shadow: -4px 0 0 #d7d7d7;
+      transform: translateX(100%);
+      transition: transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1);
+    }
+    .teacher-panel.open {
+      transform: translateX(0);
+    }
+    .teacher-panel h3 {
+      margin: 0 0 1.25rem;
+      font-family: var(--font-display);
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: var(--ink);
+      padding-bottom: 0.65rem;
+      border-bottom: 3px solid var(--green);
+    }
+    .teacher-panel .panel-group {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--swan);
+    }
+    .teacher-panel .panel-group:last-child { border-bottom: none; }
+    .teacher-panel fieldset {
+      background: var(--eel);
+      margin-top: 0.5rem;
+    }
+    .teacher-panel label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+    }
+    .teacher-panel .hint {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--wolf);
+      margin-top: 0.35rem;
+      line-height: 1.45;
+    }
+    .teacher-panel input[type="range"] {
+      width: 100%;
+      height: 10px;
+    }
+    .teacher-panel .check-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s ease;
+    }
+    .teacher-panel .check-label:hover {
+      background: var(--green-pale);
+    }
+    .teacher-panel .check-label input {
+      margin-top: 0.2rem;
+      width: 1.1rem;
+      height: 1.1rem;
+      flex-shrink: 0;
+      accent-color: var(--green);
+    }
+    .teacher-panel select {
+      font-size: 0.875rem;
+    }
+    .teacher-panel .panel-value {
+      display: inline-block;
+      margin-top: 0.35rem;
+      padding: 0.2rem 0.65rem;
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      color: var(--green-deep);
+      font-weight: 800;
+      background: var(--green-pale);
+      border-radius: var(--radius-pill);
+    }
+    .teacher-panel .facilitator-note {
+      padding: 0.75rem;
+      background: var(--blue-pale);
+      border: 2px solid #b8e4f8;
+      border-radius: var(--radius-sm);
+      border-bottom-width: 4px;
+      border-bottom-color: #9dd4f0;
+    }
+
+    kbd {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      background: var(--snow);
+      border: 2px solid var(--swan);
+      border-bottom: 3px solid var(--hare);
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    /* Botão Home — canto superior esquerdo */
+    .home-nav-btn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 60;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 44px;
+      padding: 0.45rem 0.95rem 0.45rem 0.75rem;
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      background: var(--snow);
+      border: 2px solid var(--swan);
+      border-bottom: 4px solid #d7d7d7;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      box-shadow: none;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, border-bottom-width 0.18s ease;
+    }
+    .home-nav-btn:hover {
+      background: var(--eel);
+      border-color: var(--hare);
+      border-bottom-color: var(--hare);
+    }
+    .home-nav-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+    .home-nav-btn[hidden] {
+      display: none;
+    }
+    .home-nav-icon {
+      display: block;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    /* Botão mascote — coruja com chapéu de formatura */
+    .owl-mascot-btn {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 60;
+      width: 64px;
+      height: 64px;
+      padding: 0;
+      border: 2px solid var(--green-deep);
+      border-bottom: 4px solid var(--green-deep);
+      border-radius: 50%;
+      background: var(--green);
+      cursor: pointer;
+      box-shadow: 0 6px 0 #4a8f00;
+      transition: transform 0.18s ease, background 0.18s ease, border-bottom-width 0.18s ease;
+    }
+    .owl-mascot-btn:hover {
+      background: var(--green-light);
+    }
+    .owl-mascot-btn:active {
+      transform: translateY(3px);
+      border-bottom-width: 2px;
+      box-shadow: 0 3px 0 #4a8f00;
+    }
+    .owl-mascot-icon {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    /* Modal de fundamentação pedagógica */
+    .pedagogy-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .pedagogy-modal[hidden] {
+      display: none;
+    }
+    .pedagogy-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(60, 60, 60, 0.55);
+    }
+    .pedagogy-modal-panel {
+      position: relative;
+      width: min(920px, 100%);
+      max-height: min(90vh, 900px);
+      display: flex;
+      flex-direction: column;
+      background: var(--snow);
+      border: 2px solid var(--swan);
+      border-bottom: 4px solid #d7d7d7;
+      border-radius: var(--radius);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+    }
+    .pedagogy-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--green-pale);
+      border-bottom: 2px solid var(--swan);
+      flex-shrink: 0;
+    }
+    .pedagogy-modal-header h2 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.25;
+      color: var(--ink);
+    }
+    .pedagogy-modal-close {
+      min-height: 40px;
+      min-width: 40px;
+      padding: 0.5rem;
+      font-size: 1.25rem;
+      line-height: 1;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+    .pedagogy-modal-body {
+      padding: 1.25rem 1.5rem 1.5rem;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .pedagogy-modal-body h3 {
+      font-family: var(--font-display);
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 1.5rem 0 0.75rem;
+    }
+    .pedagogy-modal-body h3:first-child {
+      margin-top: 0;
+    }
+    .pedagogy-modal-body h4 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--green-deep);
+      margin: 1.25rem 0 0.5rem;
+    }
+    .pedagogy-modal-body p,
+    .pedagogy-modal-body li {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .pedagogy-modal-body ul {
+      margin: 0 0 1rem;
+      padding-left: 1.35rem;
+    }
+    .pedagogy-modal-body li {
+      margin-bottom: 0.35rem;
+    }
+    .pedagogy-table-wrap {
+      overflow-x: auto;
+      margin: 1rem 0;
+      border: 2px solid var(--swan);
+      border-radius: var(--radius-sm);
+    }
+    .pedagogy-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      line-height: 1.45;
+    }
+    .pedagogy-table th,
+    .pedagogy-table td {
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--swan);
+    }
+    .pedagogy-table th {
+      font-family: var(--font-display);
+      font-weight: 800;
+      background: var(--eel);
+      color: var(--ink);
+    }
+    .pedagogy-table tr:last-child td {
+      border-bottom: none;
+    }
+    .pedagogy-table tbody tr:nth-child(even) td {
+      background: #fafafa;
+    }
+    body.modal-open {
+      overflow: hidden;
+    }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  </style>
+</head>
+<body>
+
+  <!-- Skip link: permite pular navegação repetitiva (WCAG 2.4.1) -->
+  <a href="#conteudo-principal" class="skip-link">Pular para o conteúdo principal</a>
+
+  <header>
+    <h1>Histórias Acessíveis</h1>
+    <p>Storytelling sonoro e acessível para a infância</p>
+  </header>
+
+  <main id="conteudo-principal">
+
+    <!-- ===== TELA INICIAL ===== -->
+    <div id="screen-home" class="screen active" role="region" aria-label="Tela inicial" aria-hidden="false">
+      <section>
+        <h2>Bem-vindo, professor ou familiar</h2>
+        <p>
+          Este aplicativo oferece histórias interativas pensadas para crianças do Ensino Fundamental I
+          com cegueira total, sempre acompanhadas por um adulto. O foco é a <strong>linguagem oral</strong>,
+          a compreensão de narrativas, sequência de eventos e <strong>participação ativa</strong> por meio de escolhas.
+        </p>
+        <p>
+          No <strong>modo professor</strong>, você escolhe a faixa etária, o tema da história e a velocidade
+          da narração, além de receber dicas de mediação pedagógica.
+        </p>
+        <p>
+          No <strong>modo criança</strong>, a experiência é 100% guiada por áudio e teclado — sem necessidade de mouse.
+        </p>
+        <p>
+          <strong>Sobre os bipes:</strong> por padrão, o aplicativo emite um bip sonoro quando um trecho termina,
+          indicando que o aluno deve pressionar <kbd>Espaço</kbd> para continuar. No painel lateral durante a história,
+          você pode trocar o bip pela voz do narrador.
+        </p>
+        <nav class="btn-group" aria-label="Ações iniciais">
+          <button type="button" id="btn-teacher-mode">Iniciar modo professor</button>
+          <button type="button" id="btn-quick-start" class="secondary">Iniciar diretamente uma história</button>
+        </nav>
+      </section>
+    </div>
+
+    <!-- ===== MODO PROFESSOR ===== -->
+    <div id="screen-teacher" class="screen" role="region" aria-label="Modo professor" aria-hidden="true" hidden>
+      <section>
+        <h2>Configurar história</h2>
+        <form id="teacher-form" aria-label="Configurações da história">
+          <div class="form-group custom-text-toggle">
+            <label class="check-label">
+              <input type="checkbox" id="use-custom-text">
+              <span>Utilizar um texto próprio</span>
+            </label>
+          </div>
+
+          <div id="custom-text-group" class="form-group custom-text-area" hidden>
+            <label for="custom-text-input">Texto personalizado</label>
+            <textarea id="custom-text-input" rows="12"
+              placeholder="Cole aqui o texto. Separe os parágrafos com uma linha em branco."
+              aria-describedby="custom-text-hint"></textarea>
+            <p class="hint" id="custom-text-hint">Leitura guiada sem escolhas ou ramificações. Cada parágrafo será narrado em sequência.</p>
+          </div>
+
+          <fieldset id="fieldset-age">
+            <legend>Faixa etária</legend>
+            <div class="form-group">
+              <label class="radio-label">
+                <input type="radio" name="age-group" value="1-2" checked>
+                1º e 2º ano
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="age-group" value="3-5">
+                3º, 4º e 5º ano
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset id="fieldset-theme">
+            <legend>Tema da história</legend>
+            <div class="form-group">
+              <label for="story-theme">Escolha o tema</label>
+              <select id="story-theme" name="story-theme" aria-describedby="theme-hint">
+              </select>
+              <span id="theme-hint" class="sr-only">Os temas mudam conforme a faixa etária selecionada.</span>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Velocidade da narração</legend>
+            <div class="form-group">
+              <label class="radio-label">
+                <input type="radio" name="speech-rate" value="slow">
+                Lento
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="speech-rate" value="normal" checked>
+                Normal
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="speech-rate" value="fast">
+                Rápido
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="btn-group">
+            <button type="submit" id="btn-start-story">Começar história</button>
+            <button type="button" id="btn-back-home-teacher" class="secondary">Voltar ao início</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="tips-panel" aria-labelledby="tips-heading">
+        <h3 id="tips-heading">Dicas de mediação</h3>
+        <!-- aria-live="polite": atualiza dicas sem interromper leitura em andamento -->
+        <div id="mediation-tips" role="status" aria-live="polite">
+          <p>Selecione um tema para ver dicas específicas de mediação.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== MODO CRIANÇA (HISTÓRIA) ===== -->
+    <div id="screen-story" class="screen" role="region" aria-label="Modo história" aria-hidden="true" hidden>
+      <div class="story-layout">
+        <div class="story-main">
+          <header class="story-header">
+            <h2 class="story-title" id="current-story-title">—</h2>
+            <p class="story-instructions" id="current-story-age">—</p>
+          </header>
+
+          <!-- 2/3 história | 1/3 orientações — todo áudio falado aparece na tela -->
+          <div class="story-split">
+            <section class="panel-story" aria-label="Texto da história">
+              <h3 class="panel-label">História</h3>
+              <div class="story-text-viewport" id="story-text-viewport">
+                <div id="story-text-content" class="story-text"></div>
+              </div>
+            </section>
+            <section class="panel-guide" aria-label="Orientações do narrador">
+              <h3 class="panel-label">Orientações do narrador</h3>
+              <div class="guide-text-viewport" id="guide-text-viewport">
+                <div id="guide-text-content" class="guide-text"></div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Controles do professor — mouse, sem interferir no teclado da criança -->
+          <div class="transport-bar" id="teacher-transport" role="toolbar" aria-label="Controles de narração para o professor">
+            <span class="transport-label">Professor:</span>
+            <button type="button" id="btn-play" title="Continuar narração" aria-label="Continuar">▶</button>
+            <button type="button" id="btn-pause" title="Pausar" aria-label="Pausar">⏸</button>
+            <button type="button" id="btn-repeat" title="Repetir trecho" aria-label="Repetir trecho">↺</button>
+            <button type="button" id="btn-slower" title="Mais lento" aria-label="Diminuir velocidade">−</button>
+            <button type="button" id="btn-faster" title="Mais rápido" aria-label="Aumentar velocidade">+</button>
+            <label class="sr-only" for="volume-slider">Volume</label>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="1" title="Volume" aria-label="Volume">
+            <button type="button" id="btn-back-home-story" class="secondary">Sair</button>
+          </div>
+        </div>
+
+        <button type="button" class="teacher-panel-toggle" id="teacher-panel-toggle"
+          aria-expanded="false" aria-controls="teacher-panel" title="Painel do professor">
+          ◀ Professor
+        </button>
+
+        <aside class="teacher-panel" id="teacher-panel" aria-label="Configurações do professor durante a história">
+          <h3>Painel do professor</h3>
+
+          <div class="panel-group">
+            <label for="simplify-after">Simplificar instruções após quantos parágrafos?</label>
+            <input type="range" id="simplify-after" min="0" max="10" value="2">
+            <span class="panel-value" id="simplify-after-value">2 parágrafos</span>
+            <p class="hint">Após esse número, só orientações curtas entre trechos. Nas escolhas, mantém apenas o anúncio das opções.</p>
+          </div>
+
+          <div class="panel-group">
+            <fieldset>
+              <legend>Aviso “pressione espaço”</legend>
+              <label class="radio-label">
+                <input type="radio" name="space-prompt-mode" value="beep" checked>
+                Bip sonoro (padrão)
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="space-prompt-mode" value="narrate">
+                Voz do narrador
+              </label>
+            </fieldset>
+            <p class="hint">Define como o aluno é avisado para pressionar espaço entre instruções e ao fim dos trechos.</p>
+            <label class="check-label">
+              <input type="checkbox" id="narrate-paragraph-end" checked>
+              <span>Fala extra ao fim de cada parágrafo da história (além do bip ou da instrução de espaço)</span>
+            </label>
+            <label class="check-label">
+              <input type="checkbox" id="basic-instructions-on" checked>
+              <span>Instruções básicas de teclado no início da história</span>
+            </label>
+          </div>
+
+          <div class="panel-group facilitator-note">
+            <p class="hint"><strong>Sobre os bipes:</strong> indicam que um trecho terminou e que o aluno deve pressionar espaço para continuar. O texto correspondente aparece no painel de orientações.</p>
+          </div>
+
+          <div class="panel-group">
+            <label for="voice-select">Voz da narração</label>
+            <select id="voice-select" aria-describedby="voice-hint">
+              <option value="default">Padrão do sistema</option>
+              <option value="female" selected>Feminina</option>
+              <option value="male">Masculina</option>
+              <option value="child">Infantil (se disponível)</option>
+            </select>
+            <p class="hint" id="voice-hint">Depende das vozes instaladas no Chrome/Chromebook.</p>
+          </div>
+
+          <div class="panel-group">
+            <p class="hint"><kbd>Espaço</kbd> continuar · <kbd>Ctrl</kbd> repetir · <kbd>↑</kbd><kbd>↓</kbd> trechos · <kbd>←</kbd><kbd>→</kbd> escolher</p>
+          </div>
+        </aside>
+      </div>
+
+      <div id="story-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+    </div>
+
+  </main>
+
+  <!-- Botão Home — voltar ao início -->
+  <button type="button" class="home-nav-btn" id="btn-home-nav" hidden
+    title="Voltar ao início" aria-label="Voltar ao início">
+    <svg class="home-nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <path fill="#58cc02" d="M12 3.2 3 10.5v9.3a1.2 1.2 0 0 0 1.2 1.2h5.1v-5.8h5.4v5.8h5.1A1.2 1.2 0 0 0 21 19.8v-9.3L12 3.2z"/>
+      <path fill="#58a700" d="M12 1.8 1.6 9.9c-.5.4-.6 1.1-.2 1.6.4.5 1.1.6 1.6.2L12 5.4l8.9 6.3c.5.4 1.2.3 1.6-.2.4-.5.3-1.2-.2-1.6L12 1.8z"/>
+    </svg>
+    <span>Início</span>
+  </button>
+
+  <!-- Botão mascote: coruja com chapéu de formatura -->
+  <button type="button" class="owl-mascot-btn" id="btn-pedagogy-owl"
+    aria-haspopup="dialog" aria-controls="pedagogy-modal"
+    title="Fundamentação pedagógica" aria-label="Abrir fundamentação pedagógica">
+    <svg class="owl-mascot-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <!-- Chapéu de formatura -->
+      <polygon points="32,6 52,16 12,16" fill="#1a1a2e"/>
+      <rect x="14" y="16" width="36" height="5" rx="1" fill="#1a1a2e"/>
+      <circle cx="46" cy="20" r="2.5" fill="#ffc800"/>
+      <line x1="46" y1="20" x2="52" y2="28" stroke="#ffc800" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Corpo da coruja -->
+      <ellipse cx="32" cy="40" rx="22" ry="20" fill="#89e219"/>
+      <ellipse cx="32" cy="42" rx="16" ry="14" fill="#dbf8c5"/>
+      <!-- Olhos -->
+      <circle cx="24" cy="34" r="9" fill="#fff"/>
+      <circle cx="40" cy="34" r="9" fill="#fff"/>
+      <circle cx="24" cy="35" r="5" fill="#3c3c3c"/>
+      <circle cx="40" cy="35" r="5" fill="#3c3c3c"/>
+      <circle cx="26" cy="33" r="1.8" fill="#fff"/>
+      <circle cx="42" cy="33" r="1.8" fill="#fff"/>
+      <!-- Bico -->
+      <polygon points="32,40 28,46 36,46" fill="#ff9600"/>
+      <!-- Asinhas -->
+      <ellipse cx="14" cy="44" rx="6" ry="10" fill="#58a700"/>
+      <ellipse cx="50" cy="44" rx="6" ry="10" fill="#58a700"/>
+      <!-- Pés -->
+      <ellipse cx="24" cy="56" rx="5" ry="3" fill="#ff9600"/>
+      <ellipse cx="40" cy="56" rx="5" ry="3" fill="#ff9600"/>
+    </svg>
+  </button>
+
+  <!-- Modal: fundamentação pedagógica -->
+  <div id="pedagogy-modal" class="pedagogy-modal" role="dialog"
+    aria-modal="true" aria-labelledby="pedagogy-modal-title" hidden>
+    <div class="pedagogy-modal-backdrop" data-close-modal></div>
+    <div class="pedagogy-modal-panel">
+      <header class="pedagogy-modal-header">
+        <h2 id="pedagogy-modal-title">Fundamentação pedagógica do webapp de storytelling acessível</h2>
+        <button type="button" class="pedagogy-modal-close secondary" id="pedagogy-modal-close"
+          aria-label="Fechar fundamentação pedagógica">✕</button>
+      </header>
+      <div class="pedagogy-modal-body">
+        <p>Este webapp de storytelling foi concebido para apoiar práticas pedagógicas com crianças do Ensino Fundamental Anos Iniciais, com foco especial em estudantes com cegueira total, por meio de narrativas orais interativas, escolhas guiadas por teclado e mediação de um professor ou acompanhante. A proposta se ancora na compreensão de que a linguagem, na BNCC, deve ser trabalhada em práticas sociais significativas, articulando oralidade, leitura/escuta, produção de textos orais e multissemióticos e análise linguística/semiótica, inclusive em ambientes digitais.</p>
+
+        <p>A Base Nacional Comum Curricular reconhece que a leitura, no contexto escolar, não se restringe ao texto escrito, mas também inclui som, música, imagens e outras linguagens que circulam em diferentes mídias. Isso torna pedagogicamente legítimo e relevante o uso de um software baseado em narração, efeitos sonoros, pausas expressivas e decisões interativas, especialmente em contextos de acessibilidade em que o canal auditivo é central para a aprendizagem e para a participação da criança.</p>
+
+        <p>Além disso, a BNCC destaca que as práticas contemporâneas de linguagem envolvem textos multissemióticos e multimidiáticos, produzidos e experienciados com apoio das tecnologias digitais da informação e comunicação. Dessa forma, o uso de um webapp acessível de storytelling não é apenas compatível com o currículo, mas dialoga diretamente com a ampliação dos multiletramentos, da participação cultural e do uso qualificado das tecnologias digitais na escola.</p>
+
+        <h3>Finalidade educacional do software</h3>
+        <p>O software tem como finalidade criar experiências de escuta ativa, compreensão narrativa, imaginação, ampliação de repertório cultural e participação oral, respeitando as especificidades dos estudantes com cegueira total. Sua proposta pedagógica se apoia em histórias sonoras interativas, nas quais a criança acompanha acontecimentos, antecipa possibilidades, responde a escolhas simples e reconstrói sentidos com mediação do professor ou acompanhante.</p>
+        <p>Ao organizar a experiência em narrativas curtas, com áudio, efeitos sonoros e escolhas mediadas por teclado, o webapp favorece o desenvolvimento da oralidade, da atenção auditiva, da interpretação, da construção de sequências lógicas e da expressão de ideias sobre personagens, acontecimentos, sentimentos e conflitos. Essas práticas são coerentes com a ênfase da BNCC em situações reais de uso da linguagem, com intencionalidade comunicativa e abertura à interação social.</p>
+
+        <h3>Convergência com a BNCC</h3>
+        <p>No componente de Língua Portuguesa, a proposta se relaciona diretamente ao eixo da oralidade, pois a BNCC define esse eixo como o conjunto de práticas de linguagem que ocorrem em situações orais, com ou sem contato face a face, incluindo contação de histórias, mensagens gravadas, podcasts, apresentações e outros gêneros mediados por voz e som. O webapp também se articula ao eixo de leitura/escuta, uma vez que a Base entende leitura em sentido ampliado, abrangendo textos orais, som, música e produções multissemióticas.</p>
+        <p>A ferramenta também se conecta ao campo artístico-literário, pois promove fruição, escuta de narrativas, imaginação, apreciação estética e contato com diferentes universos ficcionais e culturais. No caso de estudantes com cegueira total, esse aspecto é especialmente importante porque o acesso ao repertório literário e à cultura digital precisa ser garantido por meios acessíveis e significativos.</p>
+        <p>Em Arte, a proposta encontra respaldo no trabalho com teatro, música, performance vocal, sonoridades e expressividade, uma vez que a BNCC compreende a área como espaço de experimentação estética, criação, fruição e ampliação do imaginário. Histórias dramatizadas, entonação, ritmo, efeitos sonoros e composição de cenas auditivas dialogam com habilidades de apreciação e experimentação artística nos Anos Iniciais.</p>
+        <p>No campo da BNCC Tecnologia e da Computação, a proposta se relaciona à Competência Geral 5, que prevê compreender, utilizar e criar tecnologias digitais de informação e comunicação de forma crítica, significativa, reflexiva e ética para se comunicar, acessar informações, produzir conhecimentos, resolver problemas e exercer protagonismo e autoria. O uso do webapp em contexto pedagógico também favorece elementos do pensamento computacional, como sequência, tomada de decisão, antecipação de eventos e compreensão de fluxos condicionais simples dentro da narrativa interativa.</p>
+
+        <h3>Habilidades convergentes</h3>
+        <p>A seguir estão algumas habilidades da BNCC e referências convergentes da BNCC Tecnologia que dialogam de forma especialmente consistente com o uso pedagógico do webapp.</p>
+        <div class="pedagogy-table-wrap" tabindex="0" role="region" aria-label="Tabela de habilidades convergentes">
+          <table class="pedagogy-table">
+            <thead>
+              <tr>
+                <th scope="col">Área / eixo</th>
+                <th scope="col">Código</th>
+                <th scope="col">Habilidade</th>
+                <th scope="col">Relação com o webapp</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Língua Portuguesa – Oralidade</td>
+                <td>EF15LP09</td>
+                <td>Expressar-se em situações de intercâmbio oral com clareza, preocupando-se em ser compreendido pelo interlocutor e usando a palavra com tom de voz audível, boa articulação e ritmo adequado.</td>
+                <td>Após ouvir a história, a criança pode comentar acontecimentos, responder perguntas, recontar trechos e participar de conversas mediadas sobre personagens e decisões.</td>
+              </tr>
+              <tr>
+                <td>Língua Portuguesa – Oralidade / escuta</td>
+                <td>EF15LP10</td>
+                <td>Escutar, com atenção, falas de professores e colegas, formulando perguntas pertinentes ao tema e solicitando esclarecimentos sempre que necessário.</td>
+                <td>A experiência com histórias narradas favorece escuta atenta, compreensão oral e participação dialogada com professor ou acompanhante.</td>
+              </tr>
+              <tr>
+                <td>Língua Portuguesa – Campo artístico-literário</td>
+                <td>EF15LP15</td>
+                <td>Reconhecer que os textos literários fazem parte do mundo do imaginário e apresentam uma dimensão lúdica, de encantamento, valorizando-os em sua diversidade cultural como patrimônio artístico da humanidade.</td>
+                <td>O software amplia o contato com narrativas ficcionais e com a fruição literária em formato acessível.</td>
+              </tr>
+              <tr>
+                <td>Língua Portuguesa – Campo artístico-literário</td>
+                <td>EF15LP18</td>
+                <td>Relacionar texto com ilustrações e outros recursos gráficos ou sonoros, considerando seus efeitos de sentido.</td>
+                <td>No webapp, os efeitos sonoros, pausas e trilhas substituem ou complementam ilustrações, ajudando a construir sentido narrativo.</td>
+              </tr>
+              <tr>
+                <td>Língua Portuguesa – Produção oral</td>
+                <td>EF15LP19</td>
+                <td>Recontar oralmente, com e sem apoio de imagem, textos literários lidos pelo professor.</td>
+                <td>O app pode ser usado como disparador para reconto oral das histórias, com apoio da memória auditiva e da mediação docente.</td>
+              </tr>
+              <tr>
+                <td>Arte – Teatro</td>
+                <td>EF15AR18</td>
+                <td>Reconhecer e apreciar formas distintas de manifestações do teatro presentes em diferentes contextos, aprendendo a ver e a ouvir histórias dramatizadas e cultivando a percepção, o imaginário e o repertório ficcional.</td>
+                <td>A narração dramatizada e a composição sonora aproximam a criança da linguagem teatral e da escuta estética.</td>
+              </tr>
+              <tr>
+                <td>Arte – Música / sonoridades</td>
+                <td>EF15AR13</td>
+                <td>Identificar e apreciar criticamente diversas formas e gêneros de expressão musical, reconhecendo e analisando os usos e as funções da música em diversos contextos de circulação.</td>
+                <td>Trilha, ritmo, efeitos e paisagens sonoras ajudam a compreender emoções, cenários e climas narrativos.</td>
+              </tr>
+              <tr>
+                <td>Competência Geral da BNCC</td>
+                <td>CG5</td>
+                <td>Compreender, utilizar e criar tecnologias digitais de informação e comunicação de forma crítica, significativa, reflexiva e ética nas diversas práticas sociais.</td>
+                <td>O uso do webapp insere a criança em práticas culturais mediadas por tecnologia digital acessível, com intencionalidade pedagógica.</td>
+              </tr>
+              <tr>
+                <td>BNCC Computação / Cultura Digital</td>
+                <td>eixo convergente</td>
+                <td>Utilizar tecnologias digitais para acessar conteúdos, comunicar-se, produzir sentidos e participar de experiências multimídia acessíveis.</td>
+                <td>O webapp funciona como tecnologia assistiva e como meio de acesso a narrativas digitais interativas.</td>
+              </tr>
+              <tr>
+                <td>BNCC Computação / Pensamento Computacional</td>
+                <td>eixo convergente</td>
+                <td>Organizar sequências, compreender instruções, prever resultados e tomar decisões em fluxos estruturados.</td>
+                <td>As escolhas narrativas por teclado favorecem noções de sequência, condição e consequência de forma lúdica.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Contribuições pedagógicas específicas</h3>
+        <h4>1. Oralidade e escuta ativa</h4>
+        <p>O webapp fortalece práticas de escuta qualificada, compreensão oral e intercâmbio verbal. A criança ouve narrativas com diferentes entonações, ritmos e efeitos sonoros, identifica informações, antecipa sentidos, responde a perguntas e pode reconstruir oralmente o enredo com apoio do adulto mediador.</p>
+
+        <h4>2. Fruição literária e imaginação</h4>
+        <p>Ao trabalhar com histórias acessíveis em áudio, o software amplia o direito de participação da criança em experiências literárias e ficcionais. Isso favorece repertório cultural, sensibilidade estética, imaginação, simbolização e vínculo afetivo com a narrativa, elementos valorizados pela BNCC no campo artístico-literário.</p>
+
+        <h4>3. Linguagens multissemióticas</h4>
+        <p>A BNCC reconhece que a construção de sentidos pode ocorrer por diferentes linguagens e semioses, inclusive por efeitos de volume, timbre, intensidade, pausas, ritmo e sincronização em artefatos sonoros. Nesse sentido, o webapp não utiliza o som apenas como apoio, mas como linguagem principal de composição narrativa e de significação pedagógica.</p>
+
+        <h4>4. Cultura digital e acessibilidade</h4>
+        <p>Ao utilizar um ambiente digital estruturado para mediação pedagógica e participação de estudantes com cegueira total, o software contribui para uma cultura digital mais inclusiva. Ele permite que a tecnologia seja vivenciada como meio de acesso, autoria, comunicação e ampliação de repertórios, e não apenas como ferramenta instrumental.</p>
+
+        <h4>5. Sequência lógica e pensamento computacional</h4>
+        <p>Embora não seja um software de programação, o webapp trabalha noções compatíveis com o pensamento computacional ao organizar percursos narrativos em etapas, escolhas e consequências. A criança aprende a acompanhar sequências, identificar alternativas, prever desdobramentos e compreender relações simples de causa e efeito dentro da história.</p>
+
+        <h3>Papel do professor ou acompanhante</h3>
+        <p>O uso do software pressupõe mediação humana qualificada. O professor, cuidador ou acompanhante tem papel essencial na seleção das histórias, na contextualização da atividade, na formulação de perguntas, no estímulo à oralidade e no acolhimento das respostas da criança, transformando a experiência digital em prática pedagógica dialógica e significativa.</p>
+        <p>Essa mediação também é decisiva para adaptar o nível de complexidade da história, ampliar vocabulário, relacionar a narrativa às vivências da turma e garantir que a criança participe de forma ativa, com tempo, escuta, apoio e protagonismo. Assim, o software não substitui a ação pedagógica, mas a potencializa em um formato acessível e contemporâneo.</p>
+
+        <h3>Síntese para uso institucional</h3>
+        <p>Este webapp de storytelling acessível apresenta aderência pedagógica consistente com a BNCC e com os princípios da BNCC Tecnologia ao articular oralidade, escuta, fruição literária, multissemiose, cultura digital, acessibilidade e pensamento computacional em práticas significativas para os Anos Iniciais do Ensino Fundamental. Sua utilização é especialmente pertinente em contextos inclusivos, pois amplia o acesso de estudantes com cegueira total a experiências narrativas, culturais e digitais mediadas de forma ética, acessível e pedagogicamente intencional.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /* ============================================================
+   * STORYTELLING ACESSÍVEL — Aplicação principal
+   * HTML/CSS/JS puro — sem frameworks, sem backend
+   * ============================================================ */
+
+  /* ------------------------------------------------------------
+   * COMO ADICIONAR UMA NOVA HISTÓRIA:
+   * 1. Copie um objeto existente no array STORIES abaixo.
+   * 2. Altere id, title, ageGroup ('1-2' ou '3-5'), theme e themeLabel.
+   * 3. Escreva as cenas em "scenes" — cada cena precisa de id e narration.
+   * 4. Para ramificações, adicione choice com options e nextSceneId.
+   * 5. Em cenas que seguem um ramo, use nextSceneId para indicar a cena seguinte.
+   * 6. Sem nextSceneId, a próxima cena é a seguinte na lista (fluxo linear).
+   * 6. Adicione mediationTips com 3-5 parágrafos para o professor.
+   * ------------------------------------------------------------ */
+
+  const STORIES = [
+    /* ===== 1º-2º ANO: Animais amigos no parque ===== */
+    {
+      id: 'parque-animais',
+      title: 'Amigos no Parque',
+      ageGroup: '1-2',
+      theme: 'animais',
+      themeLabel: 'Animais amigos no parque',
+      mediationTips: [
+        'Antes de começar, pergunte à criança: "Você já foi a um parque? O que você gostava de fazer lá?"',
+        'Use gestos ou objetos reais: uma folha seca pode representar as árvores; um pano macio pode ser o coelho.',
+        'Quando surgir uma escolha, deixe a criança pensar sem pressa. Não há resposta certa ou errada.',
+        'Depois da história, peça para ela recontar o que aconteceu primeiro, depois e por último.',
+        'Faça perguntas abertas: "Por que você acha que o passarinho quis ajudar?"'
+      ],
+      scenes: [
+        {
+          id: 'inicio',
+          narration: 'Era uma manhã ensolarada. O coelho Pipo acordou animado. Hoje ele ia encontrar os amigos no parque da cidade.',
+          sfx: 'scene-change',
+          choice: null
+        },
+        {
+          id: 'chegada',
+          narration: 'No portão do parque, Pipo encontrou a tartaruga Tina. Tina caminhava devagar, mas sorria. Os dois entraram juntos.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'encruzilhada',
+          narration: 'Mais adiante, Pipo e Tina viram uma placa. Para a esquerda, o caminho ia até o lago. Para a direita, ia até o playground com balanços.',
+          sfx: null,
+          choice: {
+            prompt: 'Para onde Pipo e Tina devem ir? Seta esquerda para o lago. Seta direita para o playground.',
+            options: [
+              { label: 'Ir para o lago', nextSceneId: 'lago' },
+              { label: 'Ir para o playground', nextSceneId: 'playground' }
+            ]
+          }
+        },
+        {
+          id: 'lago',
+          narration: 'No lago, os patos nadavam felizes. Um patinho se aproximou e cumprimentou Pipo e Tina. O ar cheirava a água fresca.',
+          sfx: 'scene-change',
+          nextSceneId: 'problema',
+          choice: null
+        },
+        {
+          id: 'playground',
+          narration: 'No playground, o esquilo Zé já estava na gangorra. Ele acenou para Pipo e Tina. O som das risadas enchia o ar.',
+          sfx: 'scene-change',
+          nextSceneId: 'problema',
+          choice: null
+        },
+        {
+          id: 'problema',
+          narration: 'De repente, um passarinho chamado Lili chegou voando, preocupado. O ninho dela tinha caído de uma árvore por causa do vento.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'decisao-ajuda',
+          narration: 'Pipo olhou para os amigos. Eles podiam ajudar Lili a reconstruir o ninho, ou procurar um adulto no parque para ajudar.',
+          sfx: null,
+          choice: {
+            prompt: 'O que os amigos devem fazer? Seta esquerda para ajudar Lili. Seta direita para procurar um adulto.',
+            options: [
+              { label: 'Ajudar Lili a reconstruir o ninho', nextSceneId: 'ajuda-ninho' },
+              { label: 'Procurar um adulto no parque', nextSceneId: 'adulto-ajuda' }
+            ]
+          }
+        },
+        {
+          id: 'ajuda-ninho',
+          narration: 'Todos juntaram gravetos e folhas macias. Tina segurava os gravetos. Pipo e Zé colocavam as folhas. Lili cantou alegre. O ninho ficou quentinho de novo.',
+          sfx: 'confirm',
+          nextSceneId: 'fim',
+          choice: null
+        },
+        {
+          id: 'adulto-ajuda',
+          narration: 'Eles encontraram a tia Ana, que cuida do parque. Ela trouxe uma caixinha segura para o ninho. Lili ficou muito grata e os amigos aprenderam que pedir ajuda também é bom.',
+          sfx: 'confirm',
+          nextSceneId: 'fim',
+          choice: null
+        },
+        {
+          id: 'fim',
+          narration: 'O sol começou a se pôr. Pipo, Tina, Zé e Lili se despediram. Foi um dia de amizade e ajuda. E assim termina a história de Amigos no Parque. O que você acha que aconteceu primeiro?',
+          sfx: 'scene-change',
+          choice: null
+        }
+      ]
+    },
+
+    /* ===== 1º-2º ANO: Rotina na escola ===== */
+    {
+      id: 'rotina-escola',
+      title: 'Um Dia na Escola',
+      ageGroup: '1-2',
+      theme: 'escola',
+      themeLabel: 'Rotina na escola',
+      mediationTips: [
+        'Converse sobre a rotina da criança na escola dela: hora de chegar, sala de aula, recreio.',
+        'Use objetos do dia a dia: uma mochila, um lápis ou um lanche para representar momentos da história.',
+        'Enfatize a sequência: primeiro, depois, então, por fim.',
+        'Pergunte: "O que você mais gosta de fazer na escola?"',
+        'Valorize as escolhas da criança — cada caminho leva a algo positivo.'
+      ],
+      scenes: [
+        {
+          id: 'inicio',
+          narration: 'Bom dia! O menino Leo acordou cedo. Hoje é dia de escola. A mamãe preparou o café da manhã e Leo colocou os materiais na mochila.',
+          sfx: 'scene-change',
+          choice: null
+        },
+        {
+          id: 'caminho',
+          narration: 'No caminho, Leo ouviu os passos no chão e o canto dos passarinhos. Ele segurou a mão da mamãe até a porta da escola.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'sala',
+          narration: 'Na sala, a professora Ana deu bom dia a todos. Hoje teriam aula de leitura e depois o recreio.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'atividade',
+          narration: 'A professora perguntou: o que vocês querem fazer primeiro? Ler um livro em voz alta, ou ouvir uma história que ela vai contar?',
+          sfx: null,
+          choice: {
+            prompt: 'O que Leo prefere fazer? Seta esquerda para ler um livro. Seta direita para ouvir a história da professora.',
+            options: [
+              { label: 'Ler um livro em voz alta', nextSceneId: 'ler-livro' },
+              { label: 'Ouvir a história da professora', nextSceneId: 'ouvir-historia' }
+            ]
+          }
+        },
+        {
+          id: 'ler-livro',
+          narration: 'Leo escolheu um livro sobre animais. Ele leu devagar, palavra por palavra. A turma ouviu em silêncio e depois bateu palmas.',
+          sfx: 'confirm',
+          nextSceneId: 'recreio',
+          choice: null
+        },
+        {
+          id: 'ouvir-historia',
+          narration: 'A professora contou uma história sobre uma menina corajosa. Leo escutou atento. No final, todos comentaram o que mais gostaram.',
+          sfx: 'confirm',
+          nextSceneId: 'recreio',
+          choice: null
+        },
+        {
+          id: 'recreio',
+          narration: 'Chegou o recreio! O sinal tocou. Leo podia brincar de amarelinha com os colegas, ou sentar na sombra e conversar com a amiga Julia.',
+          sfx: null,
+          choice: {
+            prompt: 'O que Leo faz no recreio? Seta esquerda para brincar de amarelinha. Seta direita para conversar com Julia.',
+            options: [
+              { label: 'Brincar de amarelinha', nextSceneId: 'amarelinha' },
+              { label: 'Conversar com Julia', nextSceneId: 'conversa-julia' }
+            ]
+          }
+        },
+        {
+          id: 'amarelinha',
+          narration: 'Leo pulou na amarelinha e riu muito. Quando parou, estava ofegante e feliz. O recreio passou rápido.',
+          sfx: 'confirm',
+          nextSceneId: 'fim',
+          choice: null
+        },
+        {
+          id: 'conversa-julia',
+          narration: 'Leo e Julia conversaram sobre os animais de estimação. Julia contou que tem um cachorro chamado Thor. Leo disse que adora cachorros.',
+          sfx: 'confirm',
+          nextSceneId: 'fim',
+          choice: null
+        },
+        {
+          id: 'fim',
+          narration: 'A aula terminou. Leo guardou os materiais e se despediu dos amigos. Foi um bom dia na escola. E assim termina a história de Um Dia na Escola. Você consegue recontar o que Leo fez?',
+          sfx: 'scene-change',
+          choice: null
+        }
+      ]
+    },
+
+    /* ===== 1º-2º ANO: Amizade e ajuda mútua ===== */
+    {
+      id: 'amizade-ajuda',
+      title: 'Amigos que se Ajudam',
+      ageGroup: '1-2',
+      theme: 'amizade',
+      themeLabel: 'Amizade e ajuda mútua',
+      mediationTips: [
+        'Fale sobre o que significa ser amigo e ajudar alguém.',
+        'Use as mãos: uma mão pode apoiar a outra para mostrar ajuda mútua.',
+        'Pergunte: "Quem é seu amigo? Como vocês se ajudam?"',
+        'Destaque que pedir ajuda e oferecer ajuda são formas de carinho.',
+        'No final, incentive a criança a inventar um final diferente.'
+      ],
+      scenes: [
+        {
+          id: 'inicio',
+          narration: 'Na vila das flores, moravam a borboleta Bia e o besouro Bento. Eles eram vizinhos e melhores amigos.',
+          sfx: 'scene-change',
+          choice: null
+        },
+        {
+          id: 'manha',
+          narration: 'Numa manhã, Bia quis ir até o jardim das margaridas. Mas o vento estava forte e ela tinha medo de voar longe.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'bento-propoe',
+          narration: 'Bento teve uma ideia. Ele podia caminhar com Bia segurando uma folha grande como guarda-chuva. Ou podia ir buscar a formiga Flora, que conhece atalhos seguros.',
+          sfx: null,
+          choice: {
+            prompt: 'Como Bento vai ajudar Bia? Seta esquerda para caminhar juntos com a folha. Seta direita para buscar a formiga Flora.',
+            options: [
+              { label: 'Caminhar juntos com a folha grande', nextSceneId: 'folha' },
+              { label: 'Buscar a formiga Flora', nextSceneId: 'flora' }
+            ]
+          }
+        },
+        {
+          id: 'folha',
+          narration: 'Bento e Bia seguraram a folha juntos. O vento balançou, mas eles foram devagar e chegaram ao jardim. Bia agradeceu com um abraço de asas.',
+          sfx: 'confirm',
+          nextSceneId: 'problema-bento',
+          choice: null
+        },
+        {
+          id: 'flora',
+          narration: 'Flora mostrou um caminho perto do chão, protegido pelas pedras. Bia voou baixinho e chegou em segurança. Os três comemoraram.',
+          sfx: 'confirm',
+          nextSceneId: 'problema-bento',
+          choice: null
+        },
+        {
+          id: 'problema-bento',
+          narration: 'No jardim, Bento tropeçou numa raiz e não conseguia carregar a bolsa de sementes. Bia viu e quis retribuir a ajuda.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'decisao-bia',
+          narration: 'Bia podia chamar o passarinho Chico para carregar a bolsa voando. Ou podia empurrar a bolsa devagar com o vento das asas, junto com Bento.',
+          sfx: null,
+          choice: {
+            prompt: 'Como Bia ajuda Bento? Seta esquerda para chamar Chico. Seta direita para empurrar a bolsa com Bento.',
+            options: [
+              { label: 'Chamar o passarinho Chico', nextSceneId: 'chico' },
+              { label: 'Empurrar a bolsa junto com Bento', nextSceneId: 'empurrar' }
+            ]
+          }
+        },
+        {
+          id: 'chico',
+          narration: 'Chico levou a bolsa nas garras até a casinha de Bento. Todos riram e dividiram as sementes para plantar.',
+          sfx: 'confirm',
+          nextSceneId: 'fim',
+          choice: null
+        },
+        {
+          id: 'empurrar',
+          narration: 'Bia e Bento empurraram a bolsa juntos, rindo a cada passo. Quando chegaram, plantaram as sementes lado a lado.',
+          sfx: 'confirm',
+          nextSceneId: 'fim',
+          choice: null
+        },
+        {
+          id: 'fim',
+          narration: 'No fim do dia, Bia e Bento descobriram que ajudar o amigo faz o coração ficar leve. E assim termina a história de Amigos que se Ajudam. Como você ajudaria um amigo?',
+          sfx: 'scene-change',
+          choice: null
+        }
+      ]
+    },
+
+    /* ===== 3º-5º ANO: Cidade inclusiva ===== */
+    {
+      id: 'cidade-inclusiva',
+      title: 'Aventura na Cidade Inclusiva',
+      ageGroup: '3-5',
+      theme: 'cidade',
+      themeLabel: 'Aventura em uma cidade inclusiva',
+      mediationTips: [
+        'Apresente o conceito de cidade inclusiva: espaços pensados para todas as pessoas, com ou sem deficiência.',
+        'A protagonista Marina é cega — conecte com a experiência da criança quando fizer sentido.',
+        'Mencione recursos reais: piso tátil, sinal sonoro, descrição de ambientes.',
+        'Pergunte: "O que você ouviu na história que ajudou Marina a se locomover?"',
+        'Discuta como todos podemos tornar lugares mais acessíveis.'
+      ],
+      scenes: [
+        {
+          id: 'inicio',
+          narration: 'Marina tem dez anos e é cega desde que nasceu. Ela mora numa cidade que está sempre melhorando para ser inclusiva. Hoje ela vai visitar a nova biblioteca com sua mãe.',
+          sfx: 'scene-change',
+          choice: null
+        },
+        {
+          id: 'saida',
+          narration: 'Na calçada, Marina sentiu o piso tátil com a bengala. As bolinhas no chão indicavam: siga em frente. O sinal sonoro do semáforo apitou: pode atravessar.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'caminho',
+          narration: 'No caminho, Marina ouviu vendedores anunciando frutas, o ônibus passando com um vento forte e o cheiro quentinho de pão saindo da padaria. Sua mãe caminhava ao lado e descrevia os sons. De repente, Marina parou numa encruzilhada e precisava decidir qual rumo seguir até a biblioteca.',
+          sfx: null,
+          choice: {
+            prompt: 'Qual caminho Marina prefere? À esquerda, o caminho é mais curto, mas barulhento, com feira e carros. À direita, o caminho é mais longo, mas tranquilo, com árvores e pássaros.',
+            options: [
+              { label: 'Caminho curto e barulhento', nextSceneId: 'curto' },
+              { label: 'Caminho longo e tranquilo', nextSceneId: 'longo' }
+            ]
+          }
+        },
+        {
+          id: 'curto',
+          narration: 'Marina seguiu o caminho curto. O barulho era intenso, mas ela conhecia as vozes: o jornaleiro, a feira. Chegou rápido à biblioteca.',
+          sfx: 'scene-change',
+          nextSceneId: 'biblioteca',
+          choice: null
+        },
+        {
+          id: 'longo',
+          narration: 'Marina escolheu o caminho tranquilo. Ela ouviu pássaros e o vento nas árvores. Caminhou com calma e chegou relaxada à biblioteca.',
+          sfx: 'scene-change',
+          nextSceneId: 'biblioteca',
+          choice: null
+        },
+        {
+          id: 'biblioteca',
+          narration: 'Na biblioteca, a atendente Carla recebeu Marina com uma descrição do espaço: "A entrada tem degraus à esquerda e rampa à direita. As prateleiras de audiolivros ficam no corredor dois."',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'atividade',
+          narration: 'Marina podia participar do clube de audiolivros que começava em dez minutos, ou explorar a seção de livros em Braille sozinha primeiro.',
+          sfx: null,
+          choice: {
+            prompt: 'O que Marina faz? Seta esquerda para o clube de audiolivros. Seta direita para explorar os livros em Braille.',
+            options: [
+              { label: 'Participar do clube de audiolivros', nextSceneId: 'clube' },
+              { label: 'Explorar livros em Braille', nextSceneId: 'braille' }
+            ]
+          }
+        },
+        {
+          id: 'clube',
+          narration: 'No clube, Marina conheceu Lucas e Pri. Eles ouviram um capítulo juntos e debateram o final. Marina se sentiu parte do grupo.',
+          sfx: 'confirm',
+          nextSceneId: 'encontro',
+          choice: null
+        },
+        {
+          id: 'braille',
+          narration: 'Marina passou os dedos por livros de aventura e poesia. Encontrou um sobre uma cientista cega que viajou o mundo. Ela se empolgou.',
+          sfx: 'confirm',
+          nextSceneId: 'encontro',
+          choice: null
+        },
+        {
+          id: 'encontro',
+          narration: 'No corredor, Marina ouviu uma voz conhecida: era o professor Marcos, que ensina tecnologia assistiva na escola dela. Ele mostrou um aplicativo novo que descreve imagens em áudio.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'fim',
+          narration: 'Marina voltou para casa contando à mãe tudo o que descobriu. A cidade ainda não era perfeita, mas cada dia ficava mais inclusiva — e Marina fazia parte dessa mudança. E assim termina a história. O que você faria no lugar de Marina?',
+          sfx: 'scene-change',
+          choice: null
+        }
+      ]
+    },
+
+    /* ===== 3º-5º ANO: Viagem ao espaço ===== */
+    {
+      id: 'viagem-espaco',
+      title: 'Viagem ao Espaço',
+      ageGroup: '3-5',
+      theme: 'ciencia',
+      themeLabel: 'Exploração de ciência — viagem ao espaço',
+      mediationTips: [
+        'Use objetos para representar conceitos: uma bola para a Terra, uma lâmpada para o Sol.',
+        'Explique que no espaço não há som — por isso os astronautas usam rádio.',
+        'Conecte com BNCC: pensamento científico, curiosidade, hipóteses.',
+        'Pergunte: "Por que você acha que a Lua não tem ar?"',
+        'Incentive a criança a fazer perguntas sobre o universo.'
+      ],
+      scenes: [
+        {
+          id: 'inicio',
+          narration: 'O astronauta Pedro e a cientista Clara preparavam a nave Estrela Dourada para uma missão à Lua. Pedro era o piloto. Clara estudava as rochas lunares.',
+          sfx: 'scene-change',
+          choice: null
+        },
+        {
+          id: 'decolagem',
+          narration: 'Contagem regressiva para a decolagem: dez, nove, oito... A nave tremeu, o foguete rugiu e eles subiram rumo ao céu. A Terra ficou cada vez menor pela janela.',
+          sfx: 'scene-change',
+          choice: null
+        },
+        {
+          id: 'espaco',
+          narration: 'No espaço, tudo ficou em silêncio. Pedro explicou: sem ar, o som não viaja. Eles se comunicavam por rádio dentro dos capacetes.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'problema',
+          narration: 'De repente, um alerta acendeu no painel. O sensor mostrava dois caminhos até a Lua: um mais rápido, passando perto de um campo de asteroides, ou um mais longo, contornando com segurança.',
+          sfx: null,
+          choice: {
+            prompt: 'Qual rota a nave deve seguir? Seta esquerda para a rota rápida perto dos asteroides. Seta direita para a rota longa e segura.',
+            options: [
+              { label: 'Rota rápida perto dos asteroides', nextSceneId: 'asteroides' },
+              { label: 'Rota longa e segura', nextSceneId: 'segura' }
+            ]
+          }
+        },
+        {
+          id: 'asteroides',
+          narration: 'Pedro manobrou com cuidado entre os asteroides. Clara observou as rochas brilhantes pela janela. Foi emocionante, mas chegaram um pouco antes do previsto.',
+          sfx: 'confirm',
+          nextSceneId: 'lua',
+          choice: null
+        },
+        {
+          id: 'segura',
+          narration: 'A nave contornou o campo de asteroides. O caminho foi mais longo, mas tranquilo. Clara aproveitou para registrar dados sobre o espaço profundo.',
+          sfx: 'confirm',
+          nextSceneId: 'lua',
+          choice: null
+        },
+        {
+          id: 'lua',
+          narration: 'A nave pousou na Lua. Pedro e Clara desceram devagar na superfície. A gravidade era menor: cada passo os fazia quicar levemente.',
+          sfx: 'scene-change',
+          choice: null
+        },
+        {
+          id: 'pesquisa',
+          narration: 'Clara encontrou uma rocha incomum. Ela podia coletar a amostra agora, ou primeiro montar o equipamento para medir a temperatura do solo.',
+          sfx: null,
+          choice: {
+            prompt: 'O que Clara faz primeiro? Seta esquerda para coletar a rocha. Seta direita para medir a temperatura.',
+            options: [
+              { label: 'Coletar a amostra de rocha', nextSceneId: 'rocha' },
+              { label: 'Medir a temperatura do solo', nextSceneId: 'temperatura' }
+            ]
+          }
+        },
+        {
+          id: 'rocha',
+          narration: 'A rocha era antiga, de quando a Lua ainda era jovem. Clara guardou a amostra em um tubo selado. Pedro registrou o local exato no mapa.',
+          sfx: 'confirm',
+          nextSceneId: 'fim',
+          choice: null
+        },
+        {
+          id: 'temperatura',
+          narration: 'A temperatura era muito baixa à sombra e alta ao sol. Clara anotou os dados. Isso ajudaria a entender como construir bases lunares no futuro.',
+          sfx: 'confirm',
+          nextSceneId: 'fim',
+          choice: null
+        },
+        {
+          id: 'fim',
+          narration: 'A missão foi um sucesso. Pedro e Clara voltaram à Terra com novas descobertas. A ciência é assim: perguntar, explorar e aprender. E assim termina a Viagem ao Espaço. O que você gostaria de descobrir no espaço?',
+          sfx: 'scene-change',
+          choice: null
+        }
+      ]
+    },
+
+    /* ===== 3º-5º ANO: Respeito, diversidade e bullying ===== */
+    {
+      id: 'respeito-diversidade',
+      title: 'Respeito e Diversidade',
+      ageGroup: '3-5',
+      theme: 'respeito',
+      themeLabel: 'Respeito, diversidade e bullying',
+      mediationTips: [
+        'Este tema é sensível. Garanta um ambiente seguro antes de começar.',
+        'Explique que bullying é quando alguém machuca outra pessoa de propósito, várias vezes.',
+        'Enfatize que diferenças — cor da pele, deficiência, jeito de falar — fazem parte da diversidade humana.',
+        'Pergunte: "O que você faria se visse alguém sendo excluído?"',
+        'Valorize atitudes de respeito e empatia, não apenas o final feliz.'
+      ],
+      scenes: [
+        {
+          id: 'inicio',
+          narration: 'Na escola Horizonte, a turma do quarto ano tinha alunos de vários bairros. Entre eles estavam Rafael, que usa cadeira de rodas, e Sofia, que acabou de chegar de outra cidade.',
+          sfx: 'scene-change',
+          choice: null
+        },
+        {
+          id: 'apresentacao',
+          narration: 'Sofia falava com um sotaque diferente. Alguns colegas riram. Rafael percebeu e ficou desconfortável. A professora pediu silêncio e apresentou Sofia com carinho.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'intervalo',
+          narration: 'No intervalo, um grupo de meninos impediu Rafael de entrar no jogo de queimada, dizendo que a quadra era "só para quem corre". Rafael ficou sozinho no corredor.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'testemunha',
+          narration: 'Sofia viu o que aconteceu. Ela podia ir falar com a professora, ou se aproximar de Rafael e convidá-lo para conversar no pátio.',
+          sfx: null,
+          choice: {
+            prompt: 'O que Sofia faz? Seta esquerda para falar com a professora. Seta direita para convidar Rafael para conversar.',
+            options: [
+              { label: 'Falar com a professora', nextSceneId: 'professora' },
+              { label: 'Convidar Rafael para conversar', nextSceneId: 'conversar' }
+            ]
+          }
+        },
+        {
+          id: 'professora',
+          narration: 'Sofia contou à professora o que viu. A professora reuniu a turma e conversou sobre respeito e inclusão. O jogo foi adaptado para todos participarem.',
+          sfx: 'confirm',
+          nextSceneId: 'decisao-turma',
+          choice: null
+        },
+        {
+          id: 'conversar',
+          narration: 'Sofia se sentou ao lado de Rafael. Eles conversaram sobre jogos, músicas e a cidade de onde Sofia veio. Rafael se sentiu menos sozinho.',
+          sfx: 'confirm',
+          nextSceneId: 'decisao-turma',
+          choice: null
+        },
+        {
+          id: 'decisao-turma',
+          narration: 'No dia seguinte, a turma precisava escolher o tema da feira cultural. Um grupo queria só comidas de uma região. Outro sugeriu incluir comidas e histórias de todos os lugares.',
+          sfx: null,
+          choice: {
+            prompt: 'Qual proposta a turma deve seguir? Seta esquerda para só uma região. Seta direita para incluir todos os lugares.',
+            options: [
+              { label: 'Só comidas de uma região', nextSceneId: 'uma-regiao' },
+              { label: 'Incluir comidas e histórias de todos', nextSceneId: 'todos-lugares' }
+            ]
+          }
+        },
+        {
+          id: 'uma-regiao',
+          narration: 'A feira ficou pequena, mas alguns colegas perceberam que faltavam histórias. Na semana seguinte, decidiram ampliar. Aprenderam que é possível mudar de ideia.',
+          sfx: 'confirm',
+          nextSceneId: 'reflexao',
+          choice: null
+        },
+        {
+          id: 'todos-lugares',
+          narration: 'A feira foi colorida e cheia de sabores. Sofia trouxe um doce da sua cidade. Rafael contou sobre esportes paralímpicos. Todos aprenderam algo novo.',
+          sfx: 'confirm',
+          nextSceneId: 'reflexao',
+          choice: null
+        },
+        {
+          id: 'reflexao',
+          narration: 'A professora perguntou: o que significa respeitar o outro? Os alunos responderam: ouvir, não rir das diferenças, incluir, ajudar quando alguém está triste.',
+          sfx: null,
+          choice: null
+        },
+        {
+          id: 'fim',
+          narration: 'Rafael e Sofia viraram amigos. A turma entendeu que diversidade enriquece. Respeito não é opcional — é o mínimo para conviver bem. E assim termina a história. Como você pode mostrar respeito na sua escola?',
+          sfx: 'scene-change',
+          choice: null
+        }
+      ]
+    }
+  ];
+
+  /* ===== DICAS GERAIS DE MEDIAÇÃO (exibidas em todas as histórias) ===== */
+  const GENERAL_TIPS = [
+    'Apresente a história em um ambiente calmo, sem pressa. A criança pode fechar os olhos para escutar melhor.',
+    'Use objetos reais ou gestos para enriquecer a experiência sensorial quando fizer sentido.',
+    'Faça perguntas abertas: "O que você imaginou?" em vez de perguntas com sim ou não.',
+    'Respeite o tempo da criança. Não há limite para pensar antes de escolher.',
+    'Após a história, incentive a recontar com as próprias palavras — isso desenvolve linguagem oral e compreensão.'
+  ];
+
+  /* ============================================================
+   * MÓDULO: StoryManager — gerenciamento de histórias e cenas
+   * ============================================================ */
+  const StoryManager = {
+    getStoriesByAge(ageGroup) {
+      return STORIES.filter(s => s.ageGroup === ageGroup);
+    },
+
+    getStoryById(id) {
+      return STORIES.find(s => s.id === id) || null;
+    },
+
+    getScene(story, sceneId) {
+      return story.scenes.find(s => s.id === sceneId) || null;
+    },
+
+    getFirstScene(story) {
+      return story.scenes[0] || null;
+    },
+
+    getNextSceneByIndex(story, currentSceneId) {
+      const idx = story.scenes.findIndex(s => s.id === currentSceneId);
+      if (idx === -1 || idx >= story.scenes.length - 1) return null;
+      return story.scenes[idx + 1];
+    },
+
+    resolveChoice(scene, choiceIndex) {
+      if (!scene.choice || !scene.choice.options[choiceIndex]) return null;
+      return scene.choice.options[choiceIndex];
+    },
+
+    buildCustomStory(rawText) {
+      const trimmed = (rawText || '').trim();
+      if (!trimmed) return null;
+
+      let paragraphs = trimmed.split(/\n\s*\n+/).map(p => p.trim()).filter(Boolean);
+      if (paragraphs.length === 0) {
+        paragraphs = trimmed.split(/\n+/).map(p => p.trim()).filter(Boolean);
+      }
+      if (paragraphs.length === 0) return null;
+
+      const scenes = paragraphs.map((narration, i) => ({
+        id: 'custom-' + i,
+        narration: narration,
+        sfx: i === 0 ? 'scene-change' : null,
+        choice: null,
+        nextSceneId: i < paragraphs.length - 1 ? 'custom-' + (i + 1) : null
+      }));
+
+      return {
+        id: 'custom-text',
+        title: 'Texto personalizado',
+        ageGroup: 'custom',
+        isCustomText: true,
+        theme: 'custom',
+        themeLabel: 'Texto próprio',
+        mediationTips: [
+          'Revise o texto antes de iniciar: parágrafos curtos ajudam a criança a acompanhar.',
+          'Faça pausas entre trechos para perguntas e comentários.',
+          'Este modo não inclui escolhas — apenas leitura guiada do texto colado.'
+        ],
+        scenes: scenes
+      };
+    }
+  };
+
+  /* ============================================================
+   * MÓDULO: AudioManager — narração e efeitos sonoros
+   * Usa Web Speech API; SFX via Web Audio API como fallback
+   * ============================================================ */
+  const AudioManager = {
+    rate: 1.0,
+    volume: 1.0,
+    voicePreference: 'female',
+    _voices: [],
+    _currentUtterance: null,
+    _onBoundary: null,
+    _audioCtx: null,
+    _speaking: false,
+    _paused: false,
+    _speakId: 0,
+
+    init() {
+      this._loadVoices();
+      if (typeof speechSynthesis !== 'undefined') {
+        speechSynthesis.onvoiceschanged = () => {
+          this._loadVoices();
+          TeacherStoryControls.updateVoiceList();
+        };
+      }
+    },
+
+    _loadVoices() {
+      if (typeof speechSynthesis === 'undefined') return;
+      this._voices = speechSynthesis.getVoices();
+    },
+
+    getPortugueseVoices() {
+      return this._voices.filter(v => v.lang && v.lang.startsWith('pt'));
+    },
+
+    _getPtBrVoice() {
+      const pt = this.getPortugueseVoices();
+      const matchers = {
+        female: /maria|luciana|francisca|fernanda|feminina|female|woman|mulher|vitória|vitoria/i,
+        male: /daniel|diego|felipe|masculina|male|man|homem|thiago|ricardo/i,
+        child: /child|criança|crianca|infantil|kid|young/i
+      };
+      if (this.voicePreference !== 'default' && matchers[this.voicePreference]) {
+        const found = pt.find(v => matchers[this.voicePreference].test(v.name));
+        if (found) return found;
+      }
+      return pt.find(v => v.lang === 'pt-BR') || pt[0] || null;
+    },
+
+    setRate(speedKey) {
+      const rates = { slow: 0.75, normal: 1.0, fast: 1.25 };
+      this.rate = rates[speedKey] || 1.0;
+    },
+
+    adjustRate(delta) {
+      this.rate = Math.min(2, Math.max(0.5, Math.round((this.rate + delta) * 100) / 100));
+      return this.rate;
+    },
+
+    setVolume(val) {
+      this.volume = Math.min(1, Math.max(0, val));
+    },
+
+    setVoicePreference(pref) {
+      this.voicePreference = pref;
+    },
+
+    onBoundary(fn) {
+      this._onBoundary = fn;
+    },
+
+    speak(text, onEnd, options) {
+      options = options || {};
+      if (!text) {
+        if (onEnd) onEnd();
+        return;
+      }
+
+      if (typeof speechSynthesis === 'undefined') {
+        if (onEnd) onEnd();
+        return;
+      }
+
+      if (!options.queue) {
+        if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+        this._speaking = false;
+        this._paused = false;
+        this._currentUtterance = null;
+      }
+
+      const utteranceId = ++this._speakId;
+      const safeEnd = () => {
+        if (utteranceId !== this._speakId) return;
+        this._speaking = false;
+        this._paused = false;
+        this._currentUtterance = null;
+        if (onEnd) onEnd();
+      };
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      utterance.rate = this.rate;
+      utterance.volume = this.volume;
+      const voice = this._getPtBrVoice();
+      if (voice) utterance.voice = voice;
+
+      utterance.onboundary = (e) => {
+        if (utteranceId !== this._speakId) return;
+        if (this._onBoundary && (e.name === 'word' || e.name === 'sentence')) {
+          this._onBoundary(e.charIndex, options.target || 'story');
+        }
+      };
+
+      utterance.onend = () => safeEnd();
+
+      utterance.onerror = (e) => {
+        if (utteranceId !== this._speakId) return;
+        if (e.error === 'interrupted' || e.error === 'canceled') return;
+        safeEnd();
+      };
+
+      this._currentUtterance = utterance;
+      this._speaking = true;
+      this._paused = false;
+      speechSynthesis.speak(utterance);
+    },
+
+    pause() {
+      if (typeof speechSynthesis === 'undefined') return;
+      if (this._speaking && !this._paused) {
+        speechSynthesis.pause();
+        this._paused = true;
+      }
+    },
+
+    resume() {
+      if (typeof speechSynthesis === 'undefined') return;
+      if (this._paused) {
+        speechSynthesis.resume();
+        this._paused = false;
+      }
+    },
+
+    isSpeaking() {
+      return this._speaking;
+    },
+
+    isPaused() {
+      return this._paused;
+    },
+
+    cancel() {
+      this._speakId++;
+      if (typeof speechSynthesis !== 'undefined') {
+        speechSynthesis.cancel();
+      }
+      this._speaking = false;
+      this._paused = false;
+      this._currentUtterance = null;
+    },
+
+    /* SFX: tenta arquivo em assets/audio/; fallback Web Audio API */
+    playSfx(name) {
+      const fileMap = {
+        'confirm': 'confirm.mp3',
+        'scene-change': 'scene-change.mp3',
+        'error-soft': 'error-soft.mp3'
+      };
+      const filename = fileMap[name] || name;
+      const audio = new Audio('assets/audio/' + filename);
+      audio.volume = 0.4;
+      audio.play().catch(() => this._playTone(name));
+    },
+
+    _playTone(name) {
+      try {
+        if (!this._audioCtx) {
+          this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        const ctx = this._audioCtx;
+        const tones = {
+          'confirm': { freq: 523, dur: 0.15 },
+          'scene-change': { freq: 392, dur: 0.2 },
+          'error-soft': { freq: 220, dur: 0.1 },
+          'cue-ready': { freq: 440, dur: 0.12 },
+          'pause-cue': { freq: 330, dur: 0.08 }
+        };
+        const t = tones[name] || { freq: 440, dur: 0.1 };
+
+        const playOne = (freq, startAt, dur) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = freq;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.15, startAt);
+          gain.gain.exponentialRampToValueAtTime(0.001, startAt + dur);
+          osc.start(startAt);
+          osc.stop(startAt + dur);
+        };
+
+        if (name === 'pause-cue') {
+          playOne(330, ctx.currentTime, 0.08);
+          playOne(330, ctx.currentTime + 0.14, 0.08);
+        } else if (name === 'space-prompt') {
+          playOne(523, ctx.currentTime, 0.1);
+          playOne(659, ctx.currentTime + 0.16, 0.12);
+        } else {
+          playOne(t.freq, ctx.currentTime, t.dur);
+        }
+      } catch (e) {
+        /* silêncio se Web Audio indisponível */
+      }
+    }
+  };
+
+  /* ============================================================
+   * MÓDULO: KeyboardManager — listeners centralizados
+   * Modo criança: Space, setas e Control funcionam sem foco em botões
+   * ============================================================ */
+  const KeyboardManager = {
+    activeMode: 'home',
+    _handlers: { home: null, teacher: null, story: null },
+
+    init() {
+      document.addEventListener('keydown', (e) => this._onKeyDown(e));
+    },
+
+    setMode(mode) {
+      this.activeMode = mode;
+    },
+
+    on(mode, handler) {
+      this._handlers[mode] = handler;
+    },
+
+    _isFormFocused() {
+      const el = document.activeElement;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || tag === 'BUTTON';
+    },
+
+    _isTeacherControlFocused() {
+      const el = document.activeElement;
+      if (!el) return false;
+      return !!(el.closest('#teacher-panel') || el.closest('#teacher-transport'));
+    },
+
+    _onKeyDown(e) {
+      if (this.activeMode === 'story') {
+        if (this._isTeacherControlFocused()) return;
+        const isStoryKey = e.key === ' ' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+          e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Control';
+        if (isStoryKey) {
+          e.preventDefault();
+          const handler = this._handlers.story;
+          if (handler) handler(e);
+          return;
+        }
+      }
+
+      if (this.activeMode === 'teacher' && this._isFormFocused()) {
+        return;
+      }
+
+      const handler = this._handlers[this.activeMode];
+      if (handler) handler(e);
+    }
+  };
+
+  /* ============================================================
+   * MÓDULO: TeacherUI — formulário e dicas de mediação
+   * ============================================================ */
+  const TeacherUI = {
+    form: null,
+    themeSelect: null,
+    tipsContainer: null,
+
+    init() {
+      this.form = document.getElementById('teacher-form');
+      this.themeSelect = document.getElementById('story-theme');
+      this.tipsContainer = document.getElementById('mediation-tips');
+
+      const ageRadios = this.form.querySelectorAll('input[name="age-group"]');
+      ageRadios.forEach(r => {
+        r.addEventListener('change', () => {
+          this.updateThemeOptions(r.value);
+        });
+      });
+
+      this.themeSelect.addEventListener('change', () => {
+        this.updateMediationTips(this.themeSelect.value);
+      });
+
+      document.getElementById('use-custom-text').addEventListener('change', (e) => {
+        this.setCustomTextMode(e.target.checked);
+      });
+
+      document.getElementById('custom-text-input').addEventListener('input', (e) => {
+        if (e.target.value.trim()) e.target.removeAttribute('aria-invalid');
+      });
+
+      this.form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!this.validateForm()) return;
+        App.startStoryFromTeacher();
+      });
+
+      document.getElementById('btn-back-home-teacher').addEventListener('click', () => {
+        App.goHome();
+      });
+
+      this.setCustomTextMode(false);
+      this.updateThemeOptions('1-2');
+    },
+
+    setCustomTextMode(enabled) {
+      const ageFieldset = document.getElementById('fieldset-age');
+      const themeFieldset = document.getElementById('fieldset-theme');
+      const customGroup = document.getElementById('custom-text-group');
+      const customInput = document.getElementById('custom-text-input');
+
+      customGroup.hidden = !enabled;
+      ageFieldset.classList.toggle('is-disabled', enabled);
+      themeFieldset.classList.toggle('is-disabled', enabled);
+
+      if (enabled) {
+        this.updateCustomTextTips();
+        customInput.focus();
+      } else if (this.themeSelect.value) {
+        this.updateMediationTips(this.themeSelect.value);
+      }
+    },
+
+    updateCustomTextTips() {
+      let html = '';
+      GENERAL_TIPS.forEach(t => {
+        html += '<p>' + this._escape(t) + '</p>';
+      });
+      html += '<p><strong>Texto personalizado:</strong></p>';
+      html += '<p>Cole o texto com parágrafos separados por linha em branco. O aluno ouvirá cada trecho em sequência, sem escolhas.</p>';
+      this.tipsContainer.innerHTML = html;
+    },
+
+    validateForm() {
+      const useCustom = document.getElementById('use-custom-text').checked;
+      if (!useCustom) return true;
+      const text = document.getElementById('custom-text-input').value.trim();
+      if (text) return true;
+      const input = document.getElementById('custom-text-input');
+      input.focus();
+      input.setAttribute('aria-invalid', 'true');
+      return false;
+    },
+
+    updateThemeOptions(ageGroup) {
+      const stories = StoryManager.getStoriesByAge(ageGroup);
+      this.themeSelect.innerHTML = '';
+      stories.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = s.themeLabel;
+        this.themeSelect.appendChild(opt);
+      });
+      if (stories.length > 0) {
+        this.updateMediationTips(stories[0].id);
+      }
+    },
+
+    updateMediationTips(storyId) {
+      const story = StoryManager.getStoryById(storyId);
+      if (!story) return;
+
+      let html = '';
+      GENERAL_TIPS.forEach(t => {
+        html += '<p>' + this._escape(t) + '</p>';
+      });
+      html += '<p><strong>Dicas para esta história:</strong></p>';
+      story.mediationTips.forEach(t => {
+        html += '<p>' + this._escape(t) + '</p>';
+      });
+      this.tipsContainer.innerHTML = html;
+    },
+
+    getConfig() {
+      const useCustomText = document.getElementById('use-custom-text').checked;
+      const customText = document.getElementById('custom-text-input').value;
+      const ageGroup = this.form.querySelector('input[name="age-group"]:checked').value;
+      const storyId = this.themeSelect.value;
+      const rateKey = this.form.querySelector('input[name="speech-rate"]:checked').value;
+      return { ageGroup, storyId, rateKey, useCustomText, customText };
+    },
+
+    _escape(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  };
+
+  /* ============================================================
+   * MÓDULO: TextDisplay — dois painéis: história (2/3) e guia (1/3)
+   * Regra: todo texto falado aparece na tela; grifo só no painel ativo
+   * ============================================================ */
+  const TextDisplay = {
+    storyContainer: null,
+    guideContainer: null,
+    storyViewport: null,
+    guideViewport: null,
+    _activeTarget: null,
+    _wordSpans: [],
+    _charOffsets: [],
+    _lastStorySceneId: null,
+    _lastStoryBlock: null,
+    _lastGuideBlock: null,
+    _lastGuideText: '',
+    _storyParagraphs: [],
+
+    init() {
+      this.storyContainer = document.getElementById('story-text-content');
+      this.guideContainer = document.getElementById('guide-text-content');
+      this.storyViewport = document.getElementById('story-text-viewport');
+      this.guideViewport = document.getElementById('guide-text-viewport');
+      this._storyParagraphs = [];
+      AudioManager.onBoundary((charIndex, target) => this.highlightAt(charIndex, target));
+
+      this.storyContainer.addEventListener('click', (e) => {
+        const block = e.target.closest('.story-paragraph-clickable');
+        if (!block) return;
+        const idx = this._storyParagraphs.findIndex(p => p.block === block);
+        if (idx >= 0) StoryStateMachine.repeatParagraphAtIndex(idx);
+      });
+
+      this.storyContainer.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const block = e.target.closest('.story-paragraph-clickable');
+        if (!block) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const idx = this._storyParagraphs.findIndex(p => p.block === block);
+        if (idx >= 0) StoryStateMachine.repeatParagraphAtIndex(idx);
+      });
+    },
+
+    _tokenize(text) {
+      return (text.match(/\S+/g) || []);
+    },
+
+    _buildKaraokeBlock(text, blockClass) {
+      const block = document.createElement('p');
+      block.className = blockClass;
+      const words = this._tokenize(text);
+      const spans = [];
+      const offsets = [];
+      let offset = 0;
+      words.forEach((word) => {
+        offsets.push(offset);
+        const span = document.createElement('span');
+        span.className = 'word';
+        span.textContent = word;
+        block.appendChild(span);
+        block.appendChild(document.createTextNode(' '));
+        offset += word.length + 1;
+        spans.push(span);
+      });
+      return { block, spans, offsets };
+    },
+
+    _activateBlock(target, block, spans, offsets) {
+      this._activeTarget = target;
+      this._wordSpans = spans;
+      this._charOffsets = offsets;
+      if (target === 'story') {
+        this.storyContainer.querySelectorAll('.story-paragraph').forEach(p => {
+          p.classList.toggle('past', p !== block);
+        });
+      }
+      if (target === 'guide') {
+        this.guideContainer.querySelectorAll('.guide-message').forEach(p => {
+          p.classList.remove('guide-message-active');
+        });
+        block.classList.add('guide-message-active');
+      }
+    },
+
+    _scrollBlockIntoView(block, viewport) {
+      if (!block || !viewport) return;
+      const blockTop = block.offsetTop;
+      const blockBottom = blockTop + block.offsetHeight;
+      const viewTop = viewport.scrollTop;
+      const viewBottom = viewTop + viewport.clientHeight;
+      if (blockTop < viewTop || blockBottom > viewBottom) {
+        block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    },
+
+    appendStoryParagraph(sceneId, text) {
+      if (this._lastStorySceneId === sceneId && this._lastStoryBlock) {
+        this._activateBlock('story', this._lastStoryBlock.block, this._lastStoryBlock.spans, this._lastStoryBlock.offsets);
+        this._scrollBlockIntoView(this._lastStoryBlock.block, this.storyViewport);
+        return this._lastStoryBlock;
+      }
+      const karaoke = this._buildKaraokeBlock(text, 'story-paragraph');
+      karaoke.block.dataset.sceneId = sceneId;
+      karaoke.block.classList.add('story-paragraph-clickable');
+      karaoke.block.setAttribute('role', 'button');
+      karaoke.block.setAttribute('tabindex', '0');
+      karaoke.block.setAttribute('aria-label', 'Repetir este trecho da história');
+      karaoke.block.setAttribute('aria-pressed', 'false');
+      this.storyContainer.appendChild(karaoke.block);
+      this._storyParagraphs.push({
+        sceneId: sceneId,
+        text: text,
+        block: karaoke.block,
+        spans: karaoke.spans,
+        offsets: karaoke.offsets
+      });
+      this._lastStorySceneId = sceneId;
+      this._lastStoryBlock = karaoke;
+      this._activateBlock('story', karaoke.block, karaoke.spans, karaoke.offsets);
+      this._scrollBlockIntoView(karaoke.block, this.storyViewport);
+      return karaoke;
+    },
+
+    getStoryParagraphCount() {
+      return this._storyParagraphs.length;
+    },
+
+    getStoryParagraph(index) {
+      return this._storyParagraphs[index] || null;
+    },
+
+    markStoryParagraphSelected(index) {
+      this._storyParagraphs.forEach((entry, i) => {
+        const selected = i === index;
+        entry.block.classList.toggle('story-paragraph-selected', selected);
+        entry.block.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      });
+    },
+
+    repeatStoryParagraph(sceneId, text, onEnd) {
+      const entry = this._storyParagraphs.find(p => p.sceneId === sceneId);
+      if (entry) {
+        this._activateBlock('story', entry.block, entry.spans, entry.offsets);
+        this._scrollBlockIntoView(entry.block, this.storyViewport);
+        this.markStoryParagraphSelected(this._storyParagraphs.indexOf(entry));
+      }
+      AudioManager.speak(text, onEnd, { target: 'story' });
+    },
+
+    showGuideMessage(text, reuse) {
+      if (reuse && this._lastGuideText === text && this._lastGuideBlock) {
+        this._activateBlock('guide', this._lastGuideBlock.block, this._lastGuideBlock.spans, this._lastGuideBlock.offsets);
+        this._scrollBlockIntoView(this._lastGuideBlock.block, this.guideViewport);
+        return this._lastGuideBlock;
+      }
+      const karaoke = this._buildKaraokeBlock(text, 'guide-message');
+      this.guideContainer.appendChild(karaoke.block);
+      this._lastGuideText = text;
+      this._lastGuideBlock = karaoke;
+      this._activateBlock('guide', karaoke.block, karaoke.spans, karaoke.offsets);
+      this._scrollBlockIntoView(karaoke.block, this.guideViewport);
+      return karaoke;
+    },
+
+    showGuideStatus(text) {
+      const block = document.createElement('p');
+      block.className = 'guide-status';
+      block.textContent = text;
+      this.guideContainer.appendChild(block);
+      this._scrollBlockIntoView(block, this.guideViewport);
+    },
+
+    showFacilitatorNote(text) {
+      const block = document.createElement('div');
+      block.className = 'guide-facilitator';
+      const heading = document.createElement('strong');
+      heading.textContent = 'Para o facilitador';
+      const body = document.createElement('p');
+      body.textContent = text;
+      block.appendChild(heading);
+      block.appendChild(body);
+      this.guideContainer.appendChild(block);
+      this._scrollBlockIntoView(block, this.guideViewport);
+    },
+
+    speakStory(sceneId, text, onEnd) {
+      this.appendStoryParagraph(sceneId, text);
+      AudioManager.speak(text, onEnd, { target: 'story' });
+    },
+
+    speakGuide(text, onEnd, reuse) {
+      this.showGuideMessage(text, reuse);
+      AudioManager.speak(text, onEnd, { target: 'guide' });
+    },
+
+    highlightAt(charIndex, target) {
+      if (target && target !== this._activeTarget) return;
+      if (!this._wordSpans.length) return;
+      let idx = 0;
+      for (let i = this._charOffsets.length - 1; i >= 0; i--) {
+        if (charIndex >= this._charOffsets[i]) {
+          idx = i;
+          break;
+        }
+      }
+      this._wordSpans.forEach((span, i) => {
+        span.classList.toggle('active', i === idx);
+      });
+      const active = this._wordSpans[idx];
+      if (active) {
+        const viewport = this._activeTarget === 'guide' ? this.guideViewport : this.storyViewport;
+        this._scrollBlockIntoView(active.closest('p'), viewport);
+      }
+    },
+
+    clearHighlight() {
+      this.storyContainer.querySelectorAll('.word.active').forEach(s => s.classList.remove('active'));
+      this.guideContainer.querySelectorAll('.word.active').forEach(s => s.classList.remove('active'));
+    },
+
+    clear() {
+      if (this.storyContainer) this.storyContainer.innerHTML = '';
+      if (this.guideContainer) this.guideContainer.innerHTML = '';
+      this._wordSpans = [];
+      this._charOffsets = [];
+      this._activeTarget = null;
+      this._lastStorySceneId = null;
+      this._lastStoryBlock = null;
+      this._lastGuideBlock = null;
+      this._lastGuideText = '';
+      this._storyParagraphs = [];
+    }
+  };
+
+  /* ============================================================
+   * MÓDULO: TeacherStoryControls — painel lateral e transporte
+   * Boas práticas: instruções progressivas, controle pelo adulto
+   * ============================================================ */
+  const TeacherStoryControls = {
+    init() {
+      const toggle = document.getElementById('teacher-panel-toggle');
+      const panel = document.getElementById('teacher-panel');
+      toggle.addEventListener('click', () => {
+        const open = panel.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        toggle.textContent = (open ? '▶' : '◀') + ' Professor';
+      });
+
+      const simplify = document.getElementById('simplify-after');
+      const simplifyVal = document.getElementById('simplify-after-value');
+      simplify.addEventListener('input', () => {
+        const v = parseInt(simplify.value, 10);
+        simplifyVal.textContent = v === 0 ? 'Sempre completas' : v + (v === 1 ? ' parágrafo' : ' parágrafos');
+      });
+
+      document.getElementById('voice-select').addEventListener('change', (e) => {
+        AudioManager.setVoicePreference(e.target.value);
+      });
+
+      document.getElementById('volume-slider').addEventListener('input', (e) => {
+        AudioManager.setVolume(parseFloat(e.target.value));
+      });
+
+      document.getElementById('btn-play').addEventListener('click', () => StoryStateMachine.teacherPlay());
+      document.getElementById('btn-pause').addEventListener('click', () => StoryStateMachine.teacherPause());
+      document.getElementById('btn-repeat').addEventListener('click', () => StoryStateMachine.teacherRepeat());
+      document.getElementById('btn-slower').addEventListener('click', () => {
+        AudioManager.adjustRate(-0.1);
+      });
+      document.getElementById('btn-faster').addEventListener('click', () => {
+        AudioManager.adjustRate(0.1);
+      });
+
+      this.updateVoiceList();
+    },
+
+    updateVoiceList() {
+      const select = document.getElementById('voice-select');
+      const hint = document.getElementById('voice-hint');
+      const voices = AudioManager.getPortugueseVoices();
+      if (voices.length) {
+        hint.textContent = 'Vozes em português: ' + voices.map(v => v.name).slice(0, 4).join(', ') +
+          (voices.length > 4 ? '…' : '');
+      }
+    },
+
+    getSettings() {
+      const simplifyAfter = parseInt(document.getElementById('simplify-after').value, 10);
+      const spacePromptMode = document.querySelector('input[name="space-prompt-mode"]:checked').value;
+      return {
+        simplifyAfterParagraphs: simplifyAfter,
+        narrateParagraphEnd: document.getElementById('narrate-paragraph-end').checked,
+        basicInstructionsOn: document.getElementById('basic-instructions-on').checked,
+        spacePromptMode: spacePromptMode
+      };
+    },
+
+    resetForNewStory() {
+      document.getElementById('simplify-after').value = '2';
+      document.getElementById('simplify-after-value').textContent = '2 parágrafos';
+      document.querySelector('input[name="space-prompt-mode"][value="beep"]').checked = true;
+      document.getElementById('narrate-paragraph-end').checked = true;
+      document.getElementById('basic-instructions-on').checked = true;
+      const panel = document.getElementById('teacher-panel');
+      const toggle = document.getElementById('teacher-panel-toggle');
+      panel.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.textContent = '◀ Professor';
+      document.getElementById('voice-select').value = 'female';
+    }
+  };
+
+  /* ============================================================
+   * MÓDULO: StoryStateMachine — narrativa, pausa, escolhas
+   * Feedback auditivo progressivo: menos instruções após N parágrafos
+   * ============================================================ */
+  const SPACE_PROMPT_NEXT = 'Pressione espaço para a próxima instrução.';
+  const SPACE_PROMPT_START = 'Pressione espaço para começar a história.';
+  const SPACE_PROMPT_CONTINUE = 'Pressione espaço para continuar.';
+  const FACILITATOR_BRIEFING_DISPLAY =
+    'Os bipes indicam que um trecho terminou e que o aluno deve pressionar espaço para continuar. ' +
+    'Você pode trocar o bip pela voz do narrador no painel lateral, em Aviso pressione espaço.';
+  const FACILITATOR_BRIEFING_SPEECH =
+    'Os bipes indicam que um trecho terminou e que o aluno deve pressionar espaço para continuar.';
+  const VOICE_SELECT_PROMPT =
+    'Agora escolha a voz da narração. Por padrão, você ouvirá a voz feminina. ' +
+    'Pressione seta para a direita para ouvir a voz masculina. ' +
+    'Se preferir a voz feminina, volte com a seta para a esquerda. ' +
+    'Quando decidir, pressione espaço para continuar.';
+  const VOICE_SAMPLE_FEMALE = 'Esta é a voz feminina.';
+  const VOICE_SAMPLE_MALE = 'Esta é a voz masculina.';
+
+  const StoryStateMachine = {
+    state: 'idle',
+    story: null,
+    currentScene: null,
+    selectedChoiceIndex: 0,
+    _introStep: 0,
+    _introSteps: [],
+    _paragraphsRead: 0,
+    _choicesPresented: 0,
+    _pausedMidNarration: false,
+    _stateBeforePause: 'narrating',
+    _selectedParagraphIndex: -1,
+    _voiceSelectAfterStep: 3,
+    _voiceSelectChoice: 'female',
+    _narrationGen: 0,
+
+    start(story) {
+      this.story = story;
+      this.currentScene = StoryManager.getFirstScene(story);
+      this._introStep = 0;
+      this._paragraphsRead = 0;
+      this._choicesPresented = 0;
+      this._pausedMidNarration = false;
+      this._selectedParagraphIndex = -1;
+      this._voiceSelectChoice = 'female';
+      this._narrationGen = 0;
+      this._introSteps = this._buildIntroSteps(story);
+      TextDisplay.clear();
+      this._runFacilitatorBriefing();
+    },
+
+    _buildIntroSteps(story) {
+      const steps = [
+        'Você vai ouvir a história: ' + story.title + '.',
+        'Quando ouvir um bip, pressione a barra de espaço para continuar.',
+        'Use a barra de espaço para avançar ou interromper a narração.'
+      ];
+      let voiceAfter = 2;
+      if (!story.isCustomText) {
+        steps.push('Use as setas esquerda e direita para escolher caminhos.');
+        voiceAfter = 3;
+      }
+      steps.push('Use a tecla Control, no canto inferior esquerdo do teclado, para ouvir de novo.');
+      this._voiceSelectAfterStep = voiceAfter;
+      return steps;
+    },
+
+    _enterVoiceSelect() {
+      this.state = 'voiceSelect';
+      this._voiceSelectChoice = 'female';
+      this._setStatus('Escolha a voz da narração.');
+      TextDisplay.speakGuide(VOICE_SELECT_PROMPT, () => {
+        if (this.state !== 'voiceSelect') return;
+        this._previewVoice('female');
+      });
+    },
+
+    _previewVoice(pref) {
+      if (this.state !== 'voiceSelect') return;
+      AudioManager.cancel();
+      this._voiceSelectChoice = pref;
+      const sample = pref === 'male' ? VOICE_SAMPLE_MALE : VOICE_SAMPLE_FEMALE;
+      const label = pref === 'male' ? 'Voz masculina' : 'Voz feminina';
+      this._setStatus(label + ' selecionada. Pressione espaço para continuar.');
+      AudioManager.setVoicePreference(pref);
+      TextDisplay.speakGuide(sample);
+    },
+
+    _confirmVoiceSelect() {
+      AudioManager.cancel();
+      AudioManager.setVoicePreference(this._voiceSelectChoice);
+      const voiceSelect = document.getElementById('voice-select');
+      if (voiceSelect) voiceSelect.value = this._voiceSelectChoice;
+      this._introStep++;
+      this._runIntro();
+    },
+
+    _runFacilitatorBriefing() {
+      this.state = 'facilitatorBriefing';
+      TextDisplay.showFacilitatorNote(FACILITATOR_BRIEFING_DISPLAY);
+      this._setStatus('Orientação ao facilitador.');
+      TextDisplay.speakGuide(FACILITATOR_BRIEFING_SPEECH, () => {
+        if (this.state !== 'facilitatorBriefing') return;
+        this._enterFacilitatorBriefingWait();
+      });
+    },
+
+    _enterFacilitatorBriefingWait() {
+      this.state = 'facilitatorBriefingWait';
+      TextDisplay.clearHighlight();
+      this._presentSpacePrompt(SPACE_PROMPT_CONTINUE);
+    },
+
+    _afterFacilitatorBriefing() {
+      if (TeacherStoryControls.getSettings().basicInstructionsOn) {
+        this._runIntro();
+      } else {
+        this._beginScene();
+      }
+    },
+
+    /* Exibe texto no painel de orientações + bip (padrão) ou narração */
+    _presentSpacePrompt(text, onEnd) {
+      this._setStatus(text);
+      const mode = TeacherStoryControls.getSettings().spacePromptMode;
+      if (mode === 'narrate') {
+        TextDisplay.speakGuide(text, () => {
+          if (onEnd) onEnd();
+        });
+      } else {
+        TextDisplay.showGuideStatus(text);
+        AudioManager.playSfx('space-prompt');
+        if (onEnd) onEnd();
+      }
+    },
+
+    stop() {
+      AudioManager.cancel();
+      this._narrationGen++;
+      TextDisplay.clear();
+      this.state = 'idle';
+      this.story = null;
+      this.currentScene = null;
+      this._pausedMidNarration = false;
+    },
+
+    /* Fim da narração do parágrafo — válido em narrating ou paused (pausou com espaço) */
+    _onStoryNarrationComplete(gen) {
+      if (gen !== undefined && gen !== this._narrationGen) return;
+      const ok = this.state === 'narrating' ||
+        (this.state === 'paused' && this._pausedMidNarration);
+      if (!ok) return;
+      this._pausedMidNarration = false;
+      this._onSceneNarrationEnd();
+    },
+
+    _pauseNarration() {
+      this._stateBeforePause = this.state;
+      AudioManager.pause();
+      this._pausedMidNarration = true;
+      this.state = 'paused';
+      this._setStatus('Pausado. Pressione espaço para continuar.');
+      AudioManager.playSfx('pause-cue');
+    },
+
+    _resumeNarration() {
+      AudioManager.resume();
+      this._pausedMidNarration = false;
+      this.state = this._stateBeforePause === 'reviewing' ? 'reviewing' : 'narrating';
+      this._setStatus(this.state === 'reviewing' ? 'Repetindo trecho…' : 'Narrando história…');
+    },
+
+    _canNavigateParagraphs() {
+      return ['sceneEnd', 'paused', 'narrating', 'waitingChoice', 'reviewing'].includes(this.state);
+    },
+
+    _navigateParagraph(delta) {
+      const count = TextDisplay.getStoryParagraphCount();
+      if (!count || !this._canNavigateParagraphs()) {
+        AudioManager.playSfx('error-soft');
+        this._setInvalidKeyStatus();
+        return;
+      }
+      if (this._selectedParagraphIndex < 0) {
+        this._selectedParagraphIndex = count - 1;
+      }
+      const next = Math.max(0, Math.min(count - 1, this._selectedParagraphIndex + delta));
+      if (next === this._selectedParagraphIndex && delta !== 0) {
+        AudioManager.playSfx('error-soft');
+        return;
+      }
+      this.repeatParagraphAtIndex(next);
+    },
+
+    repeatParagraphAtIndex(index) {
+      const para = TextDisplay.getStoryParagraph(index);
+      if (!para) return;
+
+      const resumeState = (this.state === 'waitingChoice' || this.state === 'confirming')
+        ? this.state
+        : 'sceneEnd';
+
+      AudioManager.cancel();
+      this._pausedMidNarration = false;
+      this._selectedParagraphIndex = index;
+      this.state = 'reviewing';
+      const total = TextDisplay.getStoryParagraphCount();
+      this._setStatus('Repetindo trecho ' + (index + 1) + ' de ' + total + '.');
+      TextDisplay.repeatStoryParagraph(para.sceneId, para.text, () => {
+        if (this.state !== 'reviewing') return;
+        TextDisplay.clearHighlight();
+        this.state = resumeState;
+        if (resumeState === 'sceneEnd') {
+          this._setStatus(SPACE_PROMPT_CONTINUE);
+        }
+      });
+    },
+
+    _setStatus(msg) {
+      const el = document.getElementById('story-status');
+      if (el) el.textContent = msg;
+    },
+
+    _isControlKey(e) {
+      return e.key === 'Control';
+    },
+
+    _shouldSimplify() {
+      const s = TeacherStoryControls.getSettings();
+      return s.simplifyAfterParagraphs > 0 && this._paragraphsRead >= s.simplifyAfterParagraphs;
+    },
+
+    /* Feedback entre trechos — painel de orientações + bip ou narrador */
+    _playParagraphEndCue() {
+      const settings = TeacherStoryControls.getSettings();
+      const simplified = this._shouldSimplify();
+      TextDisplay.clearHighlight();
+
+      if (!settings.narrateParagraphEnd) {
+        this._presentSpacePrompt(SPACE_PROMPT_CONTINUE);
+        return;
+      }
+
+      if (simplified) {
+        this._presentSpacePrompt(SPACE_PROMPT_CONTINUE);
+        return;
+      }
+
+      const text = 'Trecho concluído. Você pode conversar com o professor. ' + SPACE_PROMPT_CONTINUE + ' Ou Control para ouvir de novo.';
+      this._setStatus(text);
+      if (settings.spacePromptMode === 'narrate') {
+        TextDisplay.speakGuide(text);
+      } else {
+        TextDisplay.showGuideStatus('Trecho concluído. Você pode conversar com o professor.');
+        this._presentSpacePrompt(SPACE_PROMPT_CONTINUE);
+      }
+    },
+
+    _enterIntroWait() {
+      this.state = 'introWait';
+      TextDisplay.clearHighlight();
+      const isLast = this._introStep >= this._introSteps.length - 1;
+      const status = isLast ? SPACE_PROMPT_START : SPACE_PROMPT_NEXT;
+      this._presentSpacePrompt(status);
+    },
+
+    _runIntro() {
+      if (this._introStep >= this._introSteps.length) {
+        this._beginScene();
+        return;
+      }
+      this.state = 'intro';
+      const stepText = this._introSteps[this._introStep];
+      this._setStatus('Instrução: ' + stepText);
+      TextDisplay.speakGuide(stepText, () => {
+        if (this.state !== 'intro') return;
+        this._enterIntroWait();
+      });
+    },
+
+    _beginScene() {
+      if (!this.currentScene) {
+        this._endStory();
+        return;
+      }
+      this.state = 'narrating';
+      this._narrateCurrentScene();
+    },
+
+    _narrateCurrentScene() {
+      const scene = this.currentScene;
+      if (!scene) return;
+
+      const gen = ++this._narrationGen;
+      this._setStatus('Narrando história…');
+      if (scene.sfx) AudioManager.playSfx(scene.sfx);
+
+      TextDisplay.speakStory(scene.id, scene.narration, () => {
+        this._onStoryNarrationComplete(gen);
+      });
+    },
+
+    _buildChoiceSpeech() {
+      const scene = this.currentScene;
+      const opts = scene.choice.options;
+      /* Primeira escolha sempre completa; depois, formato curto se já simplificando */
+      const simplified = this._choicesPresented > 0 && this._shouldSimplify();
+
+      if (simplified) {
+        return scene.choice.prompt + ' Opção um: ' + opts[0].label + '. Opção dois: ' + opts[1].label + '.';
+      }
+      return scene.choice.prompt + ' Seta esquerda para ' + opts[0].label +
+        '. Seta direita para ' + opts[1].label + '.';
+    },
+
+    _onSceneNarrationEnd() {
+      TextDisplay.clearHighlight();
+      this._paragraphsRead++;
+      this._selectedParagraphIndex = TextDisplay.getStoryParagraphCount() - 1;
+      const scene = this.currentScene;
+
+      if (scene.choice) {
+        this.state = 'waitingChoice';
+        const speech = this._buildChoiceSpeech();
+        this._choicesPresented++;
+        const opts = scene.choice.options;
+        this._setStatus('Escolha: ' + opts.map(o => o.label).join(' ou '));
+        TextDisplay.speakGuide(speech);
+        return;
+      }
+
+      this.state = 'sceneEnd';
+      this._playParagraphEndCue();
+    },
+
+    _announceChoices() {
+      this.state = 'waitingChoice';
+      const speech = this._buildChoiceSpeech();
+      const opts = this.currentScene.choice.options;
+      this._setStatus('Escolha: ' + opts.map(o => o.label).join(' ou '));
+      TextDisplay.speakGuide(speech, null, true);
+    },
+
+    _confirmChoice() {
+      const option = this.currentScene.choice.options[this.selectedChoiceIndex];
+      this.state = 'confirming';
+      AudioManager.playSfx('confirm');
+      const confirmText = 'Você escolheu: ' + option.label + '.';
+      this._setStatus('Escolha: ' + option.label);
+      TextDisplay.speakGuide(confirmText, () => {
+        if (this.state !== 'confirming') return;
+        const next = StoryManager.getScene(this.story, option.nextSceneId);
+        if (next) {
+          this.currentScene = next;
+          AudioManager.playSfx('scene-change');
+          this._beginScene();
+        } else {
+          this._endStory();
+        }
+      });
+    },
+
+    _advanceScene() {
+      let next = null;
+      if (this.currentScene.nextSceneId) {
+        next = StoryManager.getScene(this.story, this.currentScene.nextSceneId);
+      }
+      if (!next) {
+        next = StoryManager.getNextSceneByIndex(this.story, this.currentScene.id);
+      }
+      if (next) {
+        this.currentScene = next;
+        AudioManager.playSfx('scene-change');
+        this._beginScene();
+      } else {
+        this._endStory();
+      }
+    },
+
+    _endStory() {
+      this.state = 'ended';
+      AudioManager.playSfx('cue-ready');
+      const endText = 'A história terminou. Parabéns! Converse com o professor. O adulto pode voltar ao início pelo botão Sair.';
+      this._setStatus(endText);
+      TextDisplay.speakGuide(endText);
+    },
+
+    teacherPlay() {
+      if (this.state === 'paused' && this._pausedMidNarration) {
+        if (AudioManager.isPaused()) {
+          this._resumeNarration();
+        } else {
+          this._onStoryNarrationComplete();
+        }
+      } else if (this.state === 'sceneEnd' || this.state === 'introWait' ||
+          this.state === 'facilitatorBriefingWait' || this.state === 'voiceSelect') {
+        this._handleSpace();
+      }
+    },
+
+    teacherPause() {
+      if (this.state === 'narrating' && AudioManager.isSpeaking() && !AudioManager.isPaused()) {
+        this._pauseNarration();
+      } else if (AudioManager.isSpeaking() && !AudioManager.isPaused()) {
+        AudioManager.pause();
+        this.state = 'paused';
+        AudioManager.playSfx('pause-cue');
+      }
+    },
+
+    teacherRepeat() {
+      this._repeatCurrent();
+    },
+
+    _repeatCurrent() {
+      AudioManager.cancel();
+      this._narrationGen++;
+      this._pausedMidNarration = false;
+      if (this.state === 'facilitatorBriefing' || this.state === 'facilitatorBriefingWait') {
+        this._runFacilitatorBriefing();
+        return;
+      }
+      if (this.state === 'voiceSelect') {
+        this._enterVoiceSelect();
+        return;
+      }
+      if (this.state === 'introWait') {
+        this.state = 'intro';
+        this._runIntro();
+        return;
+      }
+      if (this.state === 'intro') {
+        this._runIntro();
+        return;
+      }
+      if (this.state === 'waitingChoice') {
+        this._announceChoices();
+        return;
+      }
+      if (this.state === 'paused' || this.state === 'sceneEnd') {
+        this.state = 'narrating';
+        this._narrateCurrentScene();
+        return;
+      }
+      if (this.state === 'reviewing' && this._selectedParagraphIndex >= 0) {
+        this.repeatParagraphAtIndex(this._selectedParagraphIndex);
+        return;
+      }
+      if (this.currentScene && this.state !== 'ended') {
+        this.state = 'narrating';
+        this._narrateCurrentScene();
+      }
+    },
+
+    handleKey(e) {
+      if (e.repeat && this._isControlKey(e)) return;
+      const key = e.key;
+
+      if (this.state === 'ended') return;
+
+      if (this._isControlKey(e)) {
+        this._repeatCurrent();
+        return;
+      }
+
+      if (key === ' ') {
+        this._handleSpace();
+        return;
+      }
+
+      if (key === 'ArrowUp' || key === 'ArrowDown') {
+        this._navigateParagraph(key === 'ArrowUp' ? -1 : 1);
+        return;
+      }
+
+      if (this.state === 'voiceSelect') {
+        if (key === 'ArrowLeft') { this._previewVoice('female'); return; }
+        if (key === 'ArrowRight') { this._previewVoice('male'); return; }
+        AudioManager.playSfx('error-soft');
+        this._setInvalidKeyStatus();
+        return;
+      }
+
+      if (this.state === 'waitingChoice') {
+        if (key === 'ArrowLeft') { this._selectChoice(0); return; }
+        if (key === 'ArrowRight') { this._selectChoice(1); return; }
+      }
+
+      if (this.state !== 'narrating' && this.state !== 'waitingChoice' && this.state !== 'reviewing') {
+        AudioManager.playSfx('error-soft');
+        this._setInvalidKeyStatus();
+      }
+    },
+
+    _setInvalidKeyStatus() {
+      const hints = {
+        facilitatorBriefing: 'Aguarde a orientação ao facilitador terminar.',
+        facilitatorBriefingWait: 'Pressione espaço para continuar.',
+        intro: 'Aguarde a instrução terminar. Depois pressione espaço.',
+        introWait: 'Pressione espaço.',
+        voiceSelect: 'Seta esquerda: voz feminina. Seta direita: voz masculina. Espaço para continuar.',
+        sceneEnd: 'Pressione espaço para o próximo trecho.',
+        waitingChoice: 'Use seta esquerda ou direita para escolher.',
+        paused: 'Pressione espaço para continuar a narração ou aguarde o bip para o próximo trecho.',
+        reviewing: 'Setas para cima e para baixo mudam o trecho. Espaço pausa ou continua.',
+        confirming: 'Aguarde…'
+      };
+      this._setStatus(hints[this.state] || 'Tecla não disponível agora.');
+    },
+
+    _handleSpace() {
+      if (this.state === 'facilitatorBriefingWait') {
+        AudioManager.cancel();
+        this._afterFacilitatorBriefing();
+        return;
+      }
+
+      /* Durante instrução falada: espaço não avança nem pula (evita pular textos) */
+      if (this.state === 'intro' || this.state === 'facilitatorBriefing') {
+        return;
+      }
+
+      if (this.state === 'voiceSelect') {
+        this._confirmVoiceSelect();
+        return;
+      }
+
+      if (this.state === 'introWait') {
+        AudioManager.cancel();
+        TextDisplay.clearHighlight();
+        if (this._introStep === this._voiceSelectAfterStep) {
+          this._enterVoiceSelect();
+          return;
+        }
+        this._introStep++;
+        this._runIntro();
+        return;
+      }
+
+      if (this.state === 'sceneEnd') {
+        AudioManager.cancel();
+        this._advanceScene();
+        return;
+      }
+
+      if ((this.state === 'narrating' || this.state === 'reviewing') &&
+          AudioManager.isSpeaking() && !AudioManager.isPaused()) {
+        this._pauseNarration();
+        return;
+      }
+
+      if (this.state === 'paused' && this._pausedMidNarration) {
+        if (AudioManager.isPaused()) {
+          this._resumeNarration();
+          return;
+        }
+        /* Áudio já terminou enquanto pausado — concluir trecho e emitir bip */
+        this._onStoryNarrationComplete();
+        return;
+      }
+
+      if (this.state === 'paused') {
+        AudioManager.cancel();
+        this._pausedMidNarration = false;
+        if (this.currentScene && this.currentScene.choice) {
+          this.state = 'waitingChoice';
+          this._announceChoices();
+        } else {
+          this.state = 'sceneEnd';
+          this._playParagraphEndCue();
+        }
+        return;
+      }
+
+      if (this.state === 'waitingChoice' || this.state === 'confirming') {
+        AudioManager.playSfx('error-soft');
+        this._setInvalidKeyStatus();
+      }
+    },
+
+    _selectChoice(index) {
+      const options = this.currentScene.choice.options;
+      if (index < 0 || index >= options.length) {
+        AudioManager.playSfx('error-soft');
+        return;
+      }
+      AudioManager.cancel();
+      this.selectedChoiceIndex = index;
+      this._confirmChoice();
+    }
+  };
+
+  /* ============================================================
+   * MÓDULO: PedagogyModal — fundamentação pedagógica
+   * ============================================================ */
+  const PedagogyModal = {
+    modal: null,
+    trigger: null,
+    closeBtn: null,
+    _lastFocus: null,
+
+    init() {
+      this.modal = document.getElementById('pedagogy-modal');
+      this.trigger = document.getElementById('btn-pedagogy-owl');
+      this.closeBtn = document.getElementById('pedagogy-modal-close');
+      if (!this.modal || !this.trigger) return;
+
+      this.trigger.addEventListener('click', () => this.open());
+      this.closeBtn.addEventListener('click', () => this.close());
+      this.modal.querySelectorAll('[data-close-modal]').forEach(el => {
+        el.addEventListener('click', () => this.close());
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.isOpen()) this.close();
+      });
+    },
+
+    isOpen() {
+      return this.modal && !this.modal.hidden;
+    },
+
+    open() {
+      this._lastFocus = document.activeElement;
+      this.modal.hidden = false;
+      document.body.classList.add('modal-open');
+      this.closeBtn.focus();
+    },
+
+    close() {
+      this.modal.hidden = true;
+      document.body.classList.remove('modal-open');
+      if (this._lastFocus && typeof this._lastFocus.focus === 'function') {
+        this._lastFocus.focus();
+      } else if (this.trigger) {
+        this.trigger.focus();
+      }
+    }
+  };
+
+  /* ============================================================
+   * MÓDULO: App — bootstrap e troca de telas
+   * ============================================================ */
+  const App = {
+    currentScreen: 'home',
+
+    init() {
+      AudioManager.init();
+      KeyboardManager.init();
+      TeacherUI.init();
+      TextDisplay.init();
+      TeacherStoryControls.init();
+      PedagogyModal.init();
+
+      KeyboardManager.on('story', (e) => StoryStateMachine.handleKey(e));
+
+      document.getElementById('btn-teacher-mode').addEventListener('click', () => {
+        this.showScreen('teacher');
+      });
+
+      document.getElementById('btn-quick-start').addEventListener('click', () => {
+        this.startQuickStory();
+      });
+
+      document.getElementById('btn-back-home-story').addEventListener('click', () => {
+        this.goHome();
+      });
+
+      document.getElementById('btn-home-nav').addEventListener('click', () => {
+        this.goHome();
+      });
+
+      this.showScreen('home');
+    },
+
+    goHome() {
+      AudioManager.cancel();
+      if (PedagogyModal.isOpen()) PedagogyModal.close();
+      StoryStateMachine.stop();
+      this.showScreen('home');
+    },
+
+    showScreen(name) {
+      const screens = ['home', 'teacher', 'story'];
+      screens.forEach(s => {
+        const el = document.getElementById('screen-' + s);
+        if (el) {
+          const active = s === name;
+          el.classList.toggle('active', active);
+          el.toggleAttribute('hidden', !active);
+          el.setAttribute('aria-hidden', active ? 'false' : 'true');
+        }
+      });
+
+      this.currentScreen = name;
+      KeyboardManager.setMode(name);
+      document.getElementById('conteudo-principal').classList.toggle('story-mode', name === 'story');
+
+      const homeNav = document.getElementById('btn-home-nav');
+      if (homeNav) homeNav.hidden = name === 'home';
+
+      if (name === 'home') {
+        document.getElementById('btn-teacher-mode').focus();
+      } else if (name === 'teacher') {
+        const useCustom = document.getElementById('use-custom-text').checked;
+        if (useCustom) {
+          document.getElementById('custom-text-input').focus();
+        } else {
+          document.getElementById('story-theme').focus();
+        }
+      }
+    },
+
+    startStoryFromTeacher() {
+      const config = TeacherUI.getConfig();
+      let story;
+      let ageGroup = config.ageGroup;
+
+      if (config.useCustomText) {
+        story = StoryManager.buildCustomStory(config.customText);
+        if (!story) return;
+        ageGroup = 'custom';
+      } else {
+        story = StoryManager.getStoryById(config.storyId);
+        if (!story) return;
+      }
+
+      AudioManager.setRate(config.rateKey);
+      this._launchStory(story, ageGroup);
+    },
+
+    startQuickStory() {
+      const story = StoryManager.getStoryById('parque-animais');
+      AudioManager.setRate('normal');
+      this._launchStory(story, '1-2');
+    },
+
+    _launchStory(story, ageGroup) {
+      const ageLabels = {
+        '1-2': '1º e 2º ano',
+        '3-5': '3º, 4º e 5º ano',
+        'custom': 'Texto personalizado'
+      };
+      const ageLabel = ageLabels[ageGroup] || ageLabels['1-2'];
+      document.getElementById('current-story-title').textContent = story.title;
+      document.getElementById('current-story-age').textContent =
+        ageGroup === 'custom' ? ageLabel : 'Faixa etária: ' + ageLabel;
+
+      TeacherStoryControls.resetForNewStory();
+      const voicePref = document.getElementById('voice-select').value || 'female';
+      AudioManager.setVoicePreference(voicePref);
+      AudioManager.setVolume(parseFloat(document.getElementById('volume-slider').value));
+
+      this.showScreen('story');
+      StoryStateMachine.start(story);
+    }
+  };
+
+  /* Inicialização ao carregar a página */
+  document.addEventListener('DOMContentLoaded', () => App.init());
+  </script>
+</body>
+</html>
