@@ -2820,22 +2820,34 @@
   };
 
   /* ============================================================
+   * Detecção de dispositivo touch e helper de texto adaptativo
+   * ============================================================ */
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  function t(touchText, keyText) { return isTouchDevice ? touchText : keyText; }
+
+  /* ============================================================
    * MÓDULO: StoryStateMachine — narrativa, pausa, escolhas
    * Feedback auditivo progressivo: menos instruções após N parágrafos
    * ============================================================ */
-  const SPACE_PROMPT_NEXT = 'Pressione espaço para a próxima instrução.';
-  const SPACE_PROMPT_START = 'Pressione espaço para começar a história.';
-  const SPACE_PROMPT_CONTINUE = 'Pressione espaço para continuar.';
+  const SPACE_PROMPT_NEXT = t('Toque na tela para a próxima instrução.', 'Pressione espaço para a próxima instrução.');
+  const SPACE_PROMPT_START = t('Toque na tela para começar a história.', 'Pressione espaço para começar a história.');
+  const SPACE_PROMPT_CONTINUE = t('Toque na tela para continuar.', 'Pressione espaço para continuar.');
   const FACILITATOR_BRIEFING_DISPLAY =
-    'Os bipes indicam que um trecho terminou e que o aluno deve pressionar espaço para continuar. ' +
+    t('Os bipes indicam que um trecho terminou e que o aluno deve tocar na tela para continuar. ',
+      'Os bipes indicam que um trecho terminou e que o aluno deve pressionar espaço para continuar. ') +
     'Você pode trocar o bip pela voz do narrador no painel lateral, em Aviso pressione espaço.';
-  const FACILITATOR_BRIEFING_SPEECH =
-    'Os bipes indicam que um trecho terminou e que o aluno deve pressionar espaço para continuar.';
-  const VOICE_SELECT_PROMPT =
+  const FACILITATOR_BRIEFING_SPEECH = t(
+    'Os bipes indicam que um trecho terminou e que o aluno deve tocar na tela para continuar.',
+    'Os bipes indicam que um trecho terminou e que o aluno deve pressionar espaço para continuar.');
+  const VOICE_SELECT_PROMPT = t(
+    'Agora escolha a voz da narração. Por padrão, você ouvirá a voz feminina. ' +
+    'Deslize para a direita para ouvir a voz masculina. ' +
+    'Se preferir a voz feminina, deslize para a esquerda. ' +
+    'Quando decidir, toque na tela para continuar.',
     'Agora escolha a voz da narração. Por padrão, você ouvirá a voz feminina. ' +
     'Pressione seta para a direita para ouvir a voz masculina. ' +
     'Se preferir a voz feminina, volte com a seta para a esquerda. ' +
-    'Quando decidir, pressione espaço para continuar.';
+    'Quando decidir, pressione espaço para continuar.');
   const VOICE_SAMPLE_FEMALE = 'Esta é a voz feminina.';
   const VOICE_SAMPLE_MALE = 'Esta é a voz masculina.';
 
@@ -2873,15 +2885,19 @@
     _buildIntroSteps(story) {
       const steps = [
         'Você vai ouvir a história: ' + story.title + '.',
-        'Quando ouvir um bip, pressione a barra de espaço para continuar.',
-        'Use a barra de espaço para avançar ou interromper a narração.'
+        t('Quando ouvir um bip, toque na tela para continuar.',
+          'Quando ouvir um bip, pressione a barra de espaço para continuar.'),
+        t('Toque na tela para avançar ou interromper a narração.',
+          'Use a barra de espaço para avançar ou interromper a narração.')
       ];
       let voiceAfter = 2;
       if (!story.isCustomText) {
-        steps.push('Use as setas esquerda e direita para escolher caminhos.');
+        steps.push(t('Deslize para a esquerda ou direita para escolher caminhos.',
+                     'Use as setas esquerda e direita para escolher caminhos.'));
         voiceAfter = 3;
       }
-      steps.push('Use a tecla Control, no canto inferior esquerdo do teclado, para ouvir de novo.');
+      steps.push(t('Toque duas vezes na tela para ouvir de novo.',
+                   'Use a tecla Control, no canto inferior esquerdo do teclado, para ouvir de novo.'));
       this._voiceSelectAfterStep = voiceAfter;
       return steps;
     },
@@ -2902,7 +2918,7 @@
       this._voiceSelectChoice = pref;
       const sample = pref === 'male' ? VOICE_SAMPLE_MALE : VOICE_SAMPLE_FEMALE;
       const label = pref === 'male' ? 'Voz masculina' : 'Voz feminina';
-      this._setStatus(label + ' selecionada. Pressione espaço para continuar.');
+      this._setStatus(label + t(' selecionada. Toque na tela para continuar.', ' selecionada. Pressione espaço para continuar.'));
       AudioManager.setVoicePreference(pref);
       TextDisplay.speakGuide(sample);
     },
@@ -2980,7 +2996,7 @@
       AudioManager.pause();
       this._pausedMidNarration = true;
       this.state = 'paused';
-      this._setStatus('Pausado. Pressione espaço para continuar.');
+      this._setStatus(t('Pausado. Toque na tela para continuar.', 'Pausado. Pressione espaço para continuar.'));
       AudioManager.playSfx('pause-cue');
     },
 
@@ -3304,17 +3320,19 @@
     _setInvalidKeyStatus() {
       const hints = {
         facilitatorBriefing: 'Aguarde a orientação ao facilitador terminar.',
-        facilitatorBriefingWait: 'Pressione espaço para continuar.',
-        intro: 'Aguarde a instrução terminar. Depois pressione espaço.',
-        introWait: 'Pressione espaço.',
-        voiceSelect: 'Seta esquerda: voz feminina. Seta direita: voz masculina. Espaço para continuar.',
-        sceneEnd: 'Pressione espaço para o próximo trecho.',
-        waitingChoice: 'Use seta esquerda ou direita para escolher.',
-        paused: 'Pressione espaço para continuar a narração ou aguarde o bip para o próximo trecho.',
+        facilitatorBriefingWait: t('Toque na tela para continuar.', 'Pressione espaço para continuar.'),
+        intro: t('Aguarde a instrução terminar. Depois toque na tela.', 'Aguarde a instrução terminar. Depois pressione espaço.'),
+        introWait: t('Toque na tela.', 'Pressione espaço.'),
+        voiceSelect: t('Deslize para esquerda: voz feminina. Deslize para direita: voz masculina. Toque para continuar.',
+                       'Seta esquerda: voz feminina. Seta direita: voz masculina. Espaço para continuar.'),
+        sceneEnd: t('Toque na tela para o próximo trecho.', 'Pressione espaço para o próximo trecho.'),
+        waitingChoice: t('Deslize para esquerda ou direita para escolher.', 'Use seta esquerda ou direita para escolher.'),
+        paused: t('Toque na tela para continuar a narração ou aguarde o bip para o próximo trecho.',
+                  'Pressione espaço para continuar a narração ou aguarde o bip para o próximo trecho.'),
         reviewing: 'Setas para cima e para baixo mudam o trecho. Espaço pausa ou continua.',
         confirming: 'Aguarde…'
       };
-      this._setStatus(hints[this.state] || 'Tecla não disponível agora.');
+      this._setStatus(hints[this.state] || 'Entrada não disponível agora.');
     },
 
     _handleSpace() {
@@ -3447,6 +3465,78 @@
   };
 
   /* ============================================================
+   * MÓDULO: TouchManager — gestos touch para smartphones e tablets
+   * Mapeia: swipe esquerda → ArrowLeft, swipe direita → ArrowRight,
+   *         tap → Space, double tap → Control
+   * ============================================================ */
+  const TouchManager = {
+    _startX: 0,
+    _startY: 0,
+    _lastTapTime: 0,
+    _singleTapTimer: null,
+    SWIPE_THRESHOLD: 50,
+    TAP_MAX_DIST: 15,
+    DOUBLE_TAP_MS: 300,
+
+    init() {
+      if (!isTouchDevice) return;
+      document.addEventListener('touchstart', (e) => this._onTouchStart(e), { passive: true });
+      document.addEventListener('touchend', (e) => this._onTouchEnd(e), { passive: false });
+    },
+
+    _onTouchStart(e) {
+      const touch = e.touches[0];
+      this._startX = touch.clientX;
+      this._startY = touch.clientY;
+    },
+
+    _onTouchEnd(e) {
+      if (KeyboardManager.activeMode !== 'story') return;
+      if (this._isTeacherControl(e.target)) return;
+
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - this._startX;
+      const dy = touch.clientY - this._startY;
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (absDx >= this.SWIPE_THRESHOLD && absDx > absDy * 1.5) {
+        e.preventDefault();
+        this._dispatch(dx < 0 ? 'ArrowLeft' : 'ArrowRight');
+        return;
+      }
+
+      if (dist < this.TAP_MAX_DIST) {
+        const now = Date.now();
+        if (now - this._lastTapTime < this.DOUBLE_TAP_MS) {
+          clearTimeout(this._singleTapTimer);
+          this._singleTapTimer = null;
+          this._lastTapTime = 0;
+          this._dispatch('Control');
+        } else {
+          this._lastTapTime = now;
+          this._singleTapTimer = setTimeout(() => {
+            if (Date.now() - this._lastTapTime >= this.DOUBLE_TAP_MS) {
+              this._dispatch(' ');
+              this._lastTapTime = 0;
+            }
+            this._singleTapTimer = null;
+          }, this.DOUBLE_TAP_MS);
+        }
+      }
+    },
+
+    _isTeacherControl(el) {
+      return !!(el && el.closest('#teacher-panel, #teacher-transport'));
+    },
+
+    _dispatch(key) {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    }
+  };
+
+  /* ============================================================
    * MÓDULO: App — bootstrap e troca de telas
    * ============================================================ */
   const App = {
@@ -3455,6 +3545,7 @@
     init() {
       AudioManager.init();
       KeyboardManager.init();
+      TouchManager.init();
       TeacherUI.init();
       TextDisplay.init();
       TeacherStoryControls.init();
