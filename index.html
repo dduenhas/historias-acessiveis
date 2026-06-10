@@ -1223,7 +1223,7 @@
             <p class="hint">Define como o aluno é avisado para pressionar espaço entre instruções e ao fim dos trechos.</p>
             <label class="check-label">
               <input type="checkbox" id="narrate-paragraph-end" checked>
-              <span>Fala extra ao fim de cada parágrafo da história (além do bip ou da instrução de espaço)</span>
+              <span>Narrar “Pressione espaço para continuar” ao fim de cada parágrafo (em vez de apenas o bip)</span>
             </label>
             <label class="check-label">
               <input type="checkbox" id="basic-instructions-on" checked>
@@ -2941,10 +2941,10 @@
     },
 
     /* Exibe texto no painel de orientações + bip (padrão) ou narração */
-    _presentSpacePrompt(text, onEnd) {
+    _presentSpacePrompt(text, onEnd, forceNarrate) {
       this._setStatus(text);
       const mode = TeacherStoryControls.getSettings().spacePromptMode;
-      if (mode === 'narrate') {
+      if (mode === 'narrate' || forceNarrate) {
         TextDisplay.speakGuide(text, () => {
           if (onEnd) onEnd();
         });
@@ -3053,28 +3053,9 @@
 
     /* Feedback entre trechos — painel de orientações + bip ou narrador */
     _playParagraphEndCue() {
-      const settings = TeacherStoryControls.getSettings();
-      const simplified = this._shouldSimplify();
       TextDisplay.clearHighlight();
-
-      if (!settings.narrateParagraphEnd) {
-        this._presentSpacePrompt(SPACE_PROMPT_CONTINUE);
-        return;
-      }
-
-      if (simplified) {
-        this._presentSpacePrompt(SPACE_PROMPT_CONTINUE);
-        return;
-      }
-
-      const text = 'Trecho concluído. Você pode conversar com o professor. ' + SPACE_PROMPT_CONTINUE + ' Ou Control para ouvir de novo.';
-      this._setStatus(text);
-      if (settings.spacePromptMode === 'narrate') {
-        TextDisplay.speakGuide(text);
-      } else {
-        TextDisplay.showGuideStatus('Trecho concluído. Você pode conversar com o professor.');
-        this._presentSpacePrompt(SPACE_PROMPT_CONTINUE);
-      }
+      const forceNarrate = TeacherStoryControls.getSettings().narrateParagraphEnd;
+      this._presentSpacePrompt(SPACE_PROMPT_CONTINUE, null, forceNarrate);
     },
 
     _enterIntroWait() {
@@ -3082,7 +3063,7 @@
       TextDisplay.clearHighlight();
       const isLast = this._introStep >= this._introSteps.length - 1;
       const status = isLast ? SPACE_PROMPT_START : SPACE_PROMPT_NEXT;
-      this._presentSpacePrompt(status);
+      this._presentSpacePrompt(status, null, isLast);
     },
 
     _runIntro() {
