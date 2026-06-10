@@ -2708,11 +2708,13 @@
       }
       const karaoke = this._buildKaraokeBlock(text, 'story-paragraph');
       karaoke.block.dataset.sceneId = sceneId;
-      karaoke.block.classList.add('story-paragraph-clickable');
-      karaoke.block.setAttribute('role', 'button');
-      karaoke.block.setAttribute('tabindex', '0');
-      karaoke.block.setAttribute('aria-label', 'Repetir este trecho da história');
-      karaoke.block.setAttribute('aria-pressed', 'false');
+      if (!isTouchDevice) {
+        karaoke.block.classList.add('story-paragraph-clickable');
+        karaoke.block.setAttribute('role', 'button');
+        karaoke.block.setAttribute('tabindex', '0');
+        karaoke.block.setAttribute('aria-label', 'Repetir este trecho da história');
+        karaoke.block.setAttribute('aria-pressed', 'false');
+      }
       this.storyContainer.appendChild(karaoke.block);
       this._storyParagraphs.push({
         sceneId: sceneId,
@@ -2972,6 +2974,7 @@
     _narrationGen: 0,
 
     start(story) {
+      WakeLockManager.request();
       this.story = story;
       this.currentScene = StoryManager.getFirstScene(story);
       this._introStep = 0;
@@ -3076,6 +3079,7 @@
     },
 
     stop() {
+      WakeLockManager.release();
       AudioManager.cancel();
       this._narrationGen++;
       TextDisplay.clear();
@@ -3233,7 +3237,9 @@
       const simplified = this._choicesPresented > 0 && this._shouldSimplify();
 
       if (simplified) {
-        return prompt + ' Opção um: ' + opts[0].label + '. Opção dois: ' + opts[1].label + '.';
+        return prompt +
+          t(' Deslize para a esquerda: ', ' Seta esquerda: ') + opts[0].label +
+          t('. Deslize para a direita: ', '. Seta direita: ') + opts[1].label + '.';
       }
       // Skip appending navigation hints only if the prompt already contains them AND we are
       // on desktop (on touch, keyboard hints in the prompt are useless).
@@ -3572,6 +3578,39 @@
   };
 
   /* ============================================================
+   * MÓDULO: WakeLockManager — mantém a tela ativa em dispositivos touch
+   * Usa Screen Wake Lock API (suportada no Android Chrome 84+)
+   * ============================================================ */
+  const WakeLockManager = {
+    _lock: null,
+
+    async request() {
+      if (!isTouchDevice || !('wakeLock' in navigator)) return;
+      if (this._lock) return;
+      try {
+        this._lock = await navigator.wakeLock.request('screen');
+        this._lock.addEventListener('release', () => { this._lock = null; });
+      } catch (_) {}
+    },
+
+    release() {
+      if (this._lock) {
+        this._lock.release();
+        this._lock = null;
+      }
+    },
+
+    init() {
+      if (!isTouchDevice) return;
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && App.currentScreen === 'story') {
+          this.request();
+        }
+      });
+    }
+  };
+
+  /* ============================================================
    * MÓDULO: TouchManager — gestos touch para smartphones e tablets
    * Mapeia: swipe esquerda → ArrowLeft, swipe direita → ArrowRight,
    *         tap → Space, double tap → Control
@@ -3653,6 +3692,7 @@
       AudioManager.init();
       KeyboardManager.init();
       TouchManager.init();
+      WakeLockManager.init();
       TeacherUI.init();
       TextDisplay.init();
       TeacherStoryControls.init();
