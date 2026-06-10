@@ -772,19 +772,13 @@
     #story-overlay {
       position: fixed;
       inset: 0;
-      z-index: 35;
-      background: rgba(0, 0, 0, 0.18);
+      z-index: 70;
+      background: rgba(0, 0, 0, 0.88);
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
     }
     #story-overlay[hidden] { display: none; }
-    #story-overlay.unlocked {
-      pointer-events: none;
-    }
-    #story-overlay.unlocked #overlay-lock {
-      pointer-events: auto;
-    }
     #overlay-lock {
       position: absolute;
       top: 0.75rem;
@@ -1400,7 +1394,7 @@
 
       <!-- Overlay de proteção touch: bloqueia seleção acidental; segurar cadeado 3s para desbloquear -->
       <div id="story-overlay" hidden aria-hidden="true" role="presentation">
-        <button type="button" id="overlay-lock" aria-label="Segurar 3 segundos para desbloquear controles">
+        <button type="button" id="overlay-lock" aria-label="Segurar 3 segundos para pausar e acessar o texto">
           <span id="overlay-lock-icon" aria-hidden="true">🔒</span>
           <svg id="overlay-lock-progress" viewBox="0 0 40 40" aria-hidden="true">
             <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
@@ -3185,6 +3179,21 @@
       this._pausedMidNarration = false;
       this.state = this._stateBeforePause === 'reviewing' ? 'reviewing' : 'narrating';
       this._setStatus(this.state === 'reviewing' ? 'Repetindo trecho…' : 'Narrando história…');
+      OverlayManager.restoreOnResume();
+    },
+
+    facilitatorUnlockPause() {
+      if (this.state === 'ended' || this.state === 'idle') return;
+      if ((this.state === 'narrating' || this.state === 'reviewing') &&
+          AudioManager.isSpeaking() && !AudioManager.isPaused()) {
+        this._pauseNarration();
+      } else if (AudioManager.isSpeaking() && !AudioManager.isPaused()) {
+        this._stateBeforePause = this.state;
+        AudioManager.pause();
+        this._pausedMidNarration = true;
+        this.state = 'paused';
+        AudioManager.playSfx('pause-cue');
+      }
     },
 
     _canNavigateParagraphs() {
@@ -3267,6 +3276,7 @@
         this._beginScene();
         return;
       }
+      OverlayManager.restoreOnResume();
       this.state = 'intro';
       const stepText = this._introSteps[this._introStep];
       this._setStatus('Instrução: ' + stepText);
@@ -3289,6 +3299,7 @@
       const scene = this.currentScene;
       if (!scene) return;
 
+      OverlayManager.restoreOnResume();
       const gen = ++this._narrationGen;
       this._setStatus('Narrando história…');
       if (scene.sfx) AudioManager.playSfx(scene.sfx);
@@ -3654,7 +3665,8 @@
   /* ============================================================
    * MÓDULO: OverlayManager — camada de proteção touch na tela história
    * Previne seleção acidental de texto. Cadeado no canto: segurar 3s
-   * para desbloquear controles temporariamente (professor/facilitador).
+   * para ocultar o overlay e pausar a narração (professor/facilitador).
+   * Ao retomar a narração, o overlay reaparece.
    * ============================================================ */
   const OverlayManager = {
     _overlay: null,
@@ -3662,8 +3674,8 @@
     _ring: null,
     _icon: null,
     _holdInterval: null,
-    _relockTimer: null,
     _holdStart: 0,
+    _unlocked: false,
     HOLD_MS: 3000,
     // r=18 → circumference ≈ 113.1
     CIRC: 113,
@@ -3673,33 +3685,50 @@
       this._lockBtn = document.getElementById('overlay-lock');
       this._ring    = document.getElementById('overlay-lock-ring');
       this._icon    = document.getElementById('overlay-lock-icon');
-      if (!this._overlay) return;
+      if (!this._overlay || !this._lockBtn) return;
 
-      const start = (e) => { e.stopPropagation(); this._startHold(); };
-      const cancel = (e) => { e.stopPropagation(); this._cancelHold(); };
+      const start = (e) => {
+        e.stopPropagation();
+        if (e.cancelable) e.preventDefault();
+        this._startHold();
+      };
+      const end = (e) => {
+        e.stopPropagation();
+        if (e.cancelable) e.preventDefault();
+        this._endHold();
+      };
 
-      this._lockBtn.addEventListener('touchstart', start, { passive: true });
-      this._lockBtn.addEventListener('mousedown',  start, { passive: true });
-      this._lockBtn.addEventListener('touchend',   cancel, { passive: true });
-      this._lockBtn.addEventListener('touchcancel',cancel, { passive: true });
-      this._lockBtn.addEventListener('mouseup',    cancel, { passive: true });
-      this._lockBtn.addEventListener('mouseleave', cancel, { passive: true });
+      this._lockBtn.addEventListener('touchstart', start, { passive: false });
+      this._lockBtn.addEventListener('touchend', end, { passive: false });
+      this._lockBtn.addEventListener('touchcancel', end, { passive: false });
+      if (!isTouchDevice) {
+        this._lockBtn.addEventListener('mousedown', start);
+        this._lockBtn.addEventListener('mouseup', end);
+        this._lockBtn.addEventListener('mouseleave', end);
+      }
     },
 
     show() {
       if (!isTouchDevice || !this._overlay) return;
+      this._unlocked = false;
       this._overlay.hidden = false;
-      this._overlay.classList.remove('unlocked');
+      this._overlay.setAttribute('aria-hidden', 'false');
       this._setIcon('🔒');
       this._cancelHold();
-      clearTimeout(this._relockTimer);
     },
 
     hide() {
       if (!this._overlay) return;
       this._overlay.hidden = true;
+      this._overlay.setAttribute('aria-hidden', 'true');
+      this._unlocked = false;
       this._cancelHold();
-      clearTimeout(this._relockTimer);
+    },
+
+    restoreOnResume() {
+      if (!this._unlocked || !isTouchDevice) return;
+      if (App.currentScreen !== 'story') return;
+      this.show();
     },
 
     _startHold() {
@@ -3718,6 +3747,11 @@
       }, 50);
     },
 
+    _endHold() {
+      const elapsed = Date.now() - this._holdStart;
+      if (elapsed < this.HOLD_MS) this._cancelHold();
+    },
+
     _cancelHold() {
       clearInterval(this._holdInterval);
       this._holdInterval = null;
@@ -3725,16 +3759,11 @@
     },
 
     _unlock() {
-      if (!this._overlay) return;
-      this._overlay.classList.add('unlocked');
-      this._setIcon('🔓');
-      clearTimeout(this._relockTimer);
-      this._relockTimer = setTimeout(() => this._relock(), 8000);
-    },
-
-    _relock() {
-      if (!this._overlay) return;
-      this._overlay.classList.remove('unlocked');
+      if (!this._overlay || this._unlocked) return;
+      this._unlocked = true;
+      StoryStateMachine.facilitatorUnlockPause();
+      this._overlay.hidden = true;
+      this._overlay.setAttribute('aria-hidden', 'true');
       this._setIcon('🔒');
     },
 
