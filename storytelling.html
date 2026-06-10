@@ -1222,7 +1222,7 @@
             </fieldset>
             <p class="hint">Define como o aluno é avisado para pressionar espaço entre instruções e ao fim dos trechos.</p>
             <label class="check-label">
-              <input type="checkbox" id="narrate-paragraph-end" checked>
+              <input type="checkbox" id="narrate-paragraph-end">
               <span>Narrar “Pressione espaço para continuar” ao fim de cada parágrafo (em vez de apenas o bip)</span>
             </label>
             <label class="check-label">
@@ -2808,7 +2808,7 @@
       document.getElementById('simplify-after').value = '2';
       document.getElementById('simplify-after-value').textContent = '2 parágrafos';
       document.querySelector('input[name="space-prompt-mode"][value="beep"]').checked = true;
-      document.getElementById('narrate-paragraph-end').checked = true;
+      document.getElementById('narrate-paragraph-end').checked = false;
       document.getElementById('basic-instructions-on').checked = true;
       const panel = document.getElementById('teacher-panel');
       const toggle = document.getElementById('teacher-panel-toggle');
