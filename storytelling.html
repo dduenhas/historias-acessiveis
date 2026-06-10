@@ -564,22 +564,118 @@
       border-left-color: var(--blue-deep);
       box-shadow: var(--shadow-chunky) #d7d7d7;
     }
-    @media (max-width: 700px) {
-      .story-main {
-        height: calc(100vh - 5.5rem);
-        max-height: calc(100vh - 5.5rem);
-      }
+    /* === Mobile portrait: natural document flow, no viewport lock === */
+    @media (max-width: 640px) {
       .story-layout {
-        min-height: calc(100vh - 5.5rem);
+        min-height: 0;
+        overflow: visible;
+      }
+      .story-main {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+        padding: 0.65rem;
+      }
+      .story-header {
+        padding: 0.65rem 0.9rem;
+        margin-bottom: 0.65rem;
+      }
+      .story-title {
+        font-size: 1.05rem;
       }
       .story-split {
         flex-direction: column;
+        overflow: visible;
+        gap: 0.65rem;
+        margin-bottom: 0.65rem;
+        flex: none;
       }
       .panel-story,
       .panel-guide {
-        flex: 1 1 50%;
-        height: 50%;
-        max-height: 50%;
+        flex: none;
+        height: auto;
+        max-height: none;
+      }
+      .story-text-viewport {
+        flex: none;
+        height: auto;
+        max-height: 200px;
+        min-height: 80px;
+      }
+      .guide-text-viewport {
+        flex: none;
+        height: auto;
+        max-height: none;
+        min-height: 80px;
+      }
+      .story-text,
+      .guide-text {
+        font-size: 1rem;
+        line-height: 1.7;
+      }
+      .panel-label {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.55rem;
+        margin-bottom: 0.4rem;
+      }
+      .transport-bar {
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
+        padding: 0.5rem 0.65rem;
+        gap: 0.4rem;
+      }
+      .transport-label {
+        display: none;
+      }
+      #volume-slider {
+        width: 60px;
+        flex-shrink: 1;
+      }
+    }
+    /* === Landscape on mobile: side-by-side panels, page-level scroll === */
+    @media (max-height: 500px) {
+      .story-layout {
+        min-height: 0;
+        overflow: visible;
+      }
+      .story-main {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+        padding: 0.5rem;
+      }
+      .story-split {
+        flex-direction: row;
+        overflow: visible;
+        gap: 0.5rem;
+        flex: none;
+        margin-bottom: 0.5rem;
+      }
+      .panel-story,
+      .panel-guide {
+        flex: 1;
+        height: auto;
+        max-height: none;
+      }
+      .story-text-viewport,
+      .guide-text-viewport {
+        flex: none;
+        height: auto;
+        max-height: 55vh;
+        overflow-y: auto;
+      }
+      .story-header {
+        padding: 0.4rem 0.75rem;
+        margin-bottom: 0.4rem;
+      }
+      .story-title {
+        font-size: 1rem;
+        margin: 0 0 0.2rem;
+      }
+      .transport-bar {
+        padding: 0.4rem 0.5rem;
+        gap: 0.3rem;
       }
     }
     .guide-status {
@@ -2210,10 +2306,12 @@
       const voice = this._getPtBrVoice();
       if (voice) utterance.voice = voice;
 
+      let _boundaryIndex = 0;
       utterance.onboundary = (e) => {
         if (utteranceId !== this._speakId) return;
         if (this._onBoundary && (e.name === 'word' || e.name === 'sentence')) {
-          this._onBoundary(e.charIndex, options.target || 'story');
+          this._onBoundary(e.charIndex, options.target || 'story', _boundaryIndex);
+          _boundaryIndex++;
         }
       };
 
@@ -2530,7 +2628,7 @@
       this.storyViewport = document.getElementById('story-text-viewport');
       this.guideViewport = document.getElementById('guide-text-viewport');
       this._storyParagraphs = [];
-      AudioManager.onBoundary((charIndex, target) => this.highlightAt(charIndex, target));
+      AudioManager.onBoundary((charIndex, target, boundaryIndex) => this.highlightAt(charIndex, target, boundaryIndex));
 
       this.storyContainer.addEventListener('click', (e) => {
         const block = e.target.closest('.story-paragraph-clickable');
@@ -2702,14 +2800,20 @@
       AudioManager.speak(text, onEnd, { target: 'guide' });
     },
 
-    highlightAt(charIndex, target) {
+    highlightAt(charIndex, target, boundaryIndex) {
       if (target && target !== this._activeTarget) return;
       if (!this._wordSpans.length) return;
       let idx = 0;
-      for (let i = this._charOffsets.length - 1; i >= 0; i--) {
-        if (charIndex >= this._charOffsets[i]) {
-          idx = i;
-          break;
+      // On some mobile browsers charIndex stays at 0 for every boundary event.
+      // Fall back to using the event count as a direct word index in that case.
+      if (typeof boundaryIndex === 'number' && charIndex === 0 && boundaryIndex > 0) {
+        idx = Math.min(boundaryIndex, this._wordSpans.length - 1);
+      } else {
+        for (let i = this._charOffsets.length - 1; i >= 0; i--) {
+          if (charIndex >= this._charOffsets[i]) {
+            idx = i;
+            break;
+          }
         }
       }
       this._wordSpans.forEach((span, i) => {
@@ -3131,11 +3235,14 @@
       if (simplified) {
         return prompt + ' Opção um: ' + opts[0].label + '. Opção dois: ' + opts[1].label + '.';
       }
-      if (this._promptHasKeyboardHints(prompt)) {
+      // Skip appending navigation hints only if the prompt already contains them AND we are
+      // on desktop (on touch, keyboard hints in the prompt are useless).
+      if (!isTouchDevice && this._promptHasKeyboardHints(prompt)) {
         return prompt;
       }
-      return prompt + ' Seta esquerda para ' + opts[0].label +
-        '. Seta direita para ' + opts[1].label + '.';
+      return prompt +
+        t(' Deslize para a esquerda para ', ' Seta esquerda para ') + opts[0].label +
+        t('. Deslize para a direita para ', '. Seta direita para ') + opts[1].label + '.';
     },
 
     _onSceneNarrationEnd() {
