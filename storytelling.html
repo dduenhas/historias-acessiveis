@@ -768,6 +768,56 @@
       height: 8px;
     }
 
+    /* Camada de proteção da história — bloqueia seleção acidental em touch */
+    #story-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 35;
+      background: rgba(0, 0, 0, 0.18);
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    #story-overlay[hidden] { display: none; }
+    #story-overlay.unlocked {
+      pointer-events: none;
+    }
+    #story-overlay.unlocked #overlay-lock {
+      pointer-events: auto;
+    }
+    #overlay-lock {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 48px;
+      height: 48px;
+      min-height: unset;
+      padding: 0;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.45);
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      color: #fff;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    #overlay-lock-progress {
+      position: absolute;
+      inset: -2px;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      pointer-events: none;
+      overflow: visible;
+    }
+    #overlay-lock-ring {
+      transition: stroke-dasharray 0.05s linear;
+    }
+
     /* Painel lateral do professor — recolhível */
     .teacher-panel-toggle {
       position: fixed;
@@ -1346,6 +1396,20 @@
             <p class="hint"><kbd>Espaço</kbd> continuar · <kbd>Ctrl</kbd> repetir · <kbd>↑</kbd><kbd>↓</kbd> trechos · <kbd>←</kbd><kbd>→</kbd> escolher</p>
           </div>
         </aside>
+      </div>
+
+      <!-- Overlay de proteção touch: bloqueia seleção acidental; segurar cadeado 3s para desbloquear -->
+      <div id="story-overlay" hidden aria-hidden="true" role="presentation">
+        <button type="button" id="overlay-lock" aria-label="Segurar 3 segundos para desbloquear controles">
+          <span id="overlay-lock-icon" aria-hidden="true">🔒</span>
+          <svg id="overlay-lock-progress" viewBox="0 0 40 40" aria-hidden="true">
+            <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+            <circle id="overlay-lock-ring" cx="20" cy="20" r="18" fill="none"
+              stroke="rgba(255,255,255,0.9)" stroke-width="3"
+              stroke-dasharray="0 113" stroke-linecap="round"
+              transform="rotate(-90 20 20)"/>
+          </svg>
+        </button>
       </div>
 
       <div id="story-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -2980,6 +3044,7 @@
     _narrationGen: 0,
 
     start(story) {
+      OverlayManager.show();
       WakeLockManager.request();
       this.story = story;
       this.currentScene = StoryManager.getFirstScene(story);
@@ -3085,6 +3150,7 @@
     },
 
     stop() {
+      OverlayManager.hide();
       WakeLockManager.release();
       AudioManager.cancel();
       this._narrationGen++;
@@ -3323,6 +3389,8 @@
 
     _endStory() {
       this.state = 'ended';
+      OverlayManager.hide();
+      WakeLockManager.release();
       AudioManager.playSfx('cue-ready');
       const endText = 'A história terminou. Parabéns! Converse com o professor. O adulto pode voltar ao início pelo botão Sair.';
       this._setStatus(endText);
@@ -3584,6 +3652,98 @@
   };
 
   /* ============================================================
+   * MÓDULO: OverlayManager — camada de proteção touch na tela história
+   * Previne seleção acidental de texto. Cadeado no canto: segurar 3s
+   * para desbloquear controles temporariamente (professor/facilitador).
+   * ============================================================ */
+  const OverlayManager = {
+    _overlay: null,
+    _lockBtn: null,
+    _ring: null,
+    _icon: null,
+    _holdInterval: null,
+    _relockTimer: null,
+    _holdStart: 0,
+    HOLD_MS: 3000,
+    // r=18 → circumference ≈ 113.1
+    CIRC: 113,
+
+    init() {
+      this._overlay = document.getElementById('story-overlay');
+      this._lockBtn = document.getElementById('overlay-lock');
+      this._ring    = document.getElementById('overlay-lock-ring');
+      this._icon    = document.getElementById('overlay-lock-icon');
+      if (!this._overlay) return;
+
+      const start = (e) => { e.stopPropagation(); this._startHold(); };
+      const cancel = (e) => { e.stopPropagation(); this._cancelHold(); };
+
+      this._lockBtn.addEventListener('touchstart', start, { passive: true });
+      this._lockBtn.addEventListener('mousedown',  start, { passive: true });
+      this._lockBtn.addEventListener('touchend',   cancel, { passive: true });
+      this._lockBtn.addEventListener('touchcancel',cancel, { passive: true });
+      this._lockBtn.addEventListener('mouseup',    cancel, { passive: true });
+      this._lockBtn.addEventListener('mouseleave', cancel, { passive: true });
+    },
+
+    show() {
+      if (!isTouchDevice || !this._overlay) return;
+      this._overlay.hidden = false;
+      this._overlay.classList.remove('unlocked');
+      this._setIcon('🔒');
+      this._cancelHold();
+      clearTimeout(this._relockTimer);
+    },
+
+    hide() {
+      if (!this._overlay) return;
+      this._overlay.hidden = true;
+      this._cancelHold();
+      clearTimeout(this._relockTimer);
+    },
+
+    _startHold() {
+      this._cancelHold();
+      this._holdStart = Date.now();
+      this._holdInterval = setInterval(() => {
+        const elapsed = Date.now() - this._holdStart;
+        const pct = Math.min(elapsed / this.HOLD_MS, 1);
+        if (this._ring) {
+          this._ring.setAttribute('stroke-dasharray', (pct * this.CIRC).toFixed(1) + ' ' + this.CIRC);
+        }
+        if (elapsed >= this.HOLD_MS) {
+          this._cancelHold();
+          this._unlock();
+        }
+      }, 50);
+    },
+
+    _cancelHold() {
+      clearInterval(this._holdInterval);
+      this._holdInterval = null;
+      if (this._ring) this._ring.setAttribute('stroke-dasharray', '0 ' + this.CIRC);
+    },
+
+    _unlock() {
+      if (!this._overlay) return;
+      this._overlay.classList.add('unlocked');
+      this._setIcon('🔓');
+      clearTimeout(this._relockTimer);
+      this._relockTimer = setTimeout(() => this._relock(), 8000);
+    },
+
+    _relock() {
+      if (!this._overlay) return;
+      this._overlay.classList.remove('unlocked');
+      this._setIcon('🔒');
+    },
+
+    _setIcon(emoji) {
+      if (this._icon) this._icon.textContent = emoji;
+    }
+  };
+
+  /* ============================================================
    * MÓDULO: WakeLockManager — mantém a tela ativa em dispositivos touch
    * Usa Screen Wake Lock API (suportada no Android Chrome 84+)
    * ============================================================ */
@@ -3680,7 +3840,7 @@
     },
 
     _isTeacherControl(el) {
-      return !!(el && el.closest('#teacher-panel, #teacher-transport'));
+      return !!(el && el.closest('#teacher-panel, #teacher-transport, #overlay-lock'));
     },
 
     _dispatch(key) {
@@ -3697,6 +3857,7 @@
     init() {
       AudioManager.init();
       KeyboardManager.init();
+      OverlayManager.init();
       TouchManager.init();
       WakeLockManager.init();
       TeacherUI.init();
